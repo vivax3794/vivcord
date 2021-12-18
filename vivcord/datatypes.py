@@ -197,8 +197,7 @@ class User:
 
 
 class Guild:
-    # TODO:
-    pass
+    """A discord server."""
 
 
 class Member:
@@ -208,7 +207,7 @@ class Member:
 
 class ChannelType(IntEnum):
     # TODO:
-    IDK = 1
+    pass
 
 
 class Channel:
