@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Literal, TypedDict
+from typing import TYPE_CHECKING, List, Literal, TypedDict
 
 if TYPE_CHECKING:
     from typing import Any, TypeAlias
@@ -67,14 +67,6 @@ class _MemberDataBase(TypedDict):
     permissions: str
 
 
-class RoleTagData(TypedDict, total=False):
-    """Role tag data from discord."""
-
-    bot_id: int
-    integration_id: int
-    premium_subscriber_: None
-
-
 class MemberData(_MemberDataBase, total=False):
     """Member data from discord"""
 
@@ -83,6 +75,14 @@ class MemberData(_MemberDataBase, total=False):
     avatar: str | None
     joined_at: str
     premium_since: str | None
+
+
+class RoleTagData(TypedDict, total=False):
+    """Role tag data from discord."""
+
+    bot_id: int
+    integration_id: int
+    premium_subscriber_: None
 
 
 class _RoleDataBase(TypedDict):
@@ -249,10 +249,114 @@ class AttachmentData(_AttachmentDataBase, total=False):
     ephemeral: bool
 
 
+# https://discord.com/developers/docs/resources/channel#embed-object-embed-structure
 class EmbedData(TypedDict, total=False):
     """Embed data."""
 
-    # TODO: JUST NO! NOT TODAY
+    title: str
+    type: str
+    description: str
+    url: str
+    timestamp: str
+    color: int
+    footer: EmbedFooterData
+    image: EmbedImageData
+    thumbnail: EmbedThumbnailData
+    video: EmbedVideoData
+    provider: EmbedProviderData
+    author: EmbedAuthorData
+    fields: list[EmbedFieldData]
+
+
+# https://discord.com/developers/docs/resources/channel#embed-object-embed-thumbnail-structure
+class _EmbedThumbnailDataBase(TypedDict):
+    """Embed thumbnail."""
+
+    url: str
+
+
+class EmbedThumbnailData(_EmbedThumbnailDataBase, total=False):
+    """Embed thumbnail."""
+
+    proxy_url: str
+    height: int
+    width: int
+
+
+# https://discord.com/developers/docs/resources/channel#embed-object-embed-video-structure
+class EmbedVideoData(TypedDict, total=False):
+    """Embed video data."""
+
+    url: str
+    proxy_url: str
+    height: int
+    width: int
+
+
+# https://discord.com/developers/docs/resources/channel#embed-object-embed-image-structure
+class _EmbedImageDataBase(TypedDict):
+    """Embed image."""
+
+    url: str
+
+
+class EmbedImageData(_EmbedImageDataBase, total=False):
+    """Embed image."""
+
+    proxy_url: str
+    height: int
+    width: int
+
+
+# https://discord.com/developers/docs/resources/channel#embed-object-embed-provider-structure
+class EmbedProviderData(TypedDict, total=False):
+    """Embed provider."""
+
+    name: str
+    url: str
+
+
+# https://discord.com/developers/docs/resources/channel#embed-object-embed-author-structure
+class _EmbedAuthorDataBase(TypedDict):
+    """Embed Author"""
+
+    name: str
+
+
+class EmbedAuthorData(_EmbedAuthorDataBase, total=False):
+    """Embed Author"""
+
+    url: str
+    icon_url: str
+    proxy_icon_url: str
+
+
+# https://discord.com/developers/docs/resources/channel#embed-object-embed-footer-structure
+class _EmbedFooterDataBase(TypedDict):
+    """Embeed footer"""
+
+    text: str
+
+
+class EmbedFooterData(_EmbedFooterDataBase, total=False):
+    """Embeed footer"""
+
+    icon_url: str
+    proxy_icon_url: str
+
+
+# https://discord.com/developers/docs/resources/channel#embed-object-embed-field-structure
+class _EmbedFieldDataBase(TypedDict):
+    """Embed field."""
+
+    name: str
+    value: str
+
+
+class EmbedFieldData(_EmbedFieldDataBase, total=False):
+    """Embed field."""
+
+    inline: bool
 
 
 class ReactionData(TypedDict):
@@ -263,9 +367,22 @@ class ReactionData(TypedDict):
     emoji: EmojiData
 
 
-class EmojiData(TypedDict):
-    "Emoji data."
-    # TODO: make it stop
+class _EmojiDataBase(TypedDict):
+    """Emoji data."""
+
+    id: int | None
+    name: str | None
+
+
+class EmojiData(_EmojiDataBase, total=False):
+    """Emoji data."""
+
+    roles: list[int]
+    user: UserData
+    require_colons: bool
+    managed: bool
+    animated: bool
+    available: bool
 
 
 class _MessageActivityDataBase(TypedDict):
@@ -298,12 +415,46 @@ class MessageInteractionData(TypedDict):
     user: UserData
 
 
-class ComponentData(TypedDict):
-    """Component."""
+# https://discord.com/developers/docs/interactions/message-components#component-object-component-structure
+class _ComponentDataBase(TypedDict):
+    """Discord component data."""
 
-    # TODO: Just no
+    type: int
 
 
+class ComponentData(_ComponentDataBase, total=False):
+    """Discord component data."""
+
+    custom_id: str
+    disabled: bool
+    style: int
+    label: str
+    emoji: EmojiData
+    url: str
+    options: list[SelectOptionData]
+    placeholder: str
+    min_values: int
+    max_value: int
+    components: list[ComponentData]
+
+
+# https://discord.com/developers/docs/interactions/message-components#select-menu-object-select-option-structure
+class _SelectOptionDataBase(TypedDict):
+    """Select option."""
+
+    label: str
+    value: str
+
+
+class SelectOptionData(_SelectOptionDataBase, total=False):
+    """Select option."""
+
+    description: str
+    emoji: EmojiData
+    default: bool
+
+
+# https://discord.com/developers/docs/resources/sticker#sticker-item-object-sticker-item-structure
 class StickerItemData(TypedDict):
     "Sticker item."
     id: int
@@ -311,14 +462,249 @@ class StickerItemData(TypedDict):
     format_type: int
 
 
-class StickerData(TypedDict):
+# https://discord.com/developers/docs/resources/sticker#sticker-object-sticker-structure
+class _StickerDataBase(TypedDict):
     """Sticker data."""
 
-    # TODO: I really need to sleep
+    id: int
+    name: str
+    description: str | None
+    tags: str
+    asset: Literal[""]
+    type: int
+    format_type: int
+
+
+class StickerData(_StickerDataBase, total=False):
+    """Sticker data."""
+
+    pack_id: int
+    available: bool
+    guild_id: int
+    user: UserData
+    sort_value: int
+
+
+# https://discord.com/developers/docs/resources/guild#guild-object-guild-structure
+class _GuildDataBase(TypedDict):
+    """Discord server (guild)."""
+
+    id: int
+    name: str
+    icon: str | None
+    splash: str | None
+    discovery_splash: str | None
+    owner_id: int
+    afk_channel_id: int | None
+    afk_timeout: int
+    verification_level: int
+    default_message_notifications: int
+    explicit_content_filter: int
+    roles: list[RoleData]
+    emojis: list[EmojiData]
+    features: list[str]
+    mfa_level: int
+    application_id: int | None
+    system_channel_id: int | None
+    system_channel_flags: int
+    rules_channel_id: int | None
+    vanity_url_code: str | None
+    description: str | None
+    banner: str | None
+    premium_tier: int
+    preferred_locale: str
+    public_updates_channel_id: int | None
+    nsfw_level: int
+    premium_progress_bar_enabled: bool
+
+
+class GuildData(_GuildDataBase, total=False):
+    """Discord server (guild)."""
+
+    icon_hash: str | None
+    owner: bool
+    permissions: str
+    widget_enabled: bool
+    widget_channel_id: int | None
+    joined_at: str
+    large: bool
+    unavailable: bool
+    member_count: int
+    voice_states: list[VoiceStateData]
+    members: list[MemberData]
+    channels: list[ChannelData]
+    threads: list[ChannelData]
+    presences: list[PresenceUpdateData]
+    max_presences: int | None
+    max_members: int
+    premium_subscription_count: int
+    max_video_channel_users: int
+    approximate_member_count: int
+    approximate_presence_count: int
+    welcome_screen: WelcomeScreenData
+    stage_instances: list[StageInstanceData]
+    stickers: list[StickerData]
+    guild_scheduled_events: list[GuildScheduledEventData]
+
+
+# https://discord.com/developers/docs/resources/voice#voice-state-object-voice-state-structure
+class _VoiceStateDataBase(TypedDict):
+    """Voice state."""
+
+    channel_id: int | None
+    user_id: int
+    session_id: str
+    deaf: bool
+    mute: bool
+    self_dead: bool
+    self_mute: bool
+    self_video: bool
+    suppres: bool
+    request_to_speak_timestamp: str | None
+
+
+class VoiceStateData(_VoiceStateDataBase, total=False):
+    """Voice state."""
+
+    guild_id: int
+    member: MemberData
+
+
+# https://discord.com/developers/docs/topics/gateway#presence-update-presence-update-event-fields
+class PresenceUpdateData(TypedDict):
+    """Presence update."""
+
+    user: UserData
+    guild_id: int
+    status: str
+    activities: list[ActivityData]
+    client_status: ClientStatusData
+
+
+# https://discord.com/developers/docs/topics/gateway#activity-object-activity-structure
+class _ActivityDataBase(TypedDict):
+    """Activity."""
+
+    name: str
+    type: int
+    created_at: int
+
+
+class ActivityData(_ActivityDataBase, total=False):
+    """Activity."""
+
+    url: str | None
+    timestamps: list[TimestampData]
+    application_id: int
+    details: str | None
+    state: str | None
+    emoji: EmojiData | None
+    party: PartyData
+    assets: AssetData
+    secrets: ActivitySecretData
+    instance: bool
+    flags: int
+    buttons: list[str]
+
+
+class TimestampData(TypedDict, total=False):
+    """Activity timestamp."""
+
+    start: int
+    end: int
+
+
+class PartyData(TypedDict, total=False):
+    """Activity part."""
+
+    id: str
+    size: list[int]
+
+
+class AssetData(TypedDict, total=False):
+    """Activity asset data."""
+
+    large_image: str
+    large_text: str
+    small_image: str
+    small_text: str
+
+
+class ActivitySecretData(TypedDict, total=False):
+    """Activity secret data."""
+
+    join: str
+    spectate: str
+    match: str
+
+
+class ClientStatusData(TypedDict, total=False):
+    """Client status."""
+
+    desktop: str
+    mobile: str
+    web: str
+
+
+class WelcomeScreenData(TypedDict):
+    """Welcome screen."""
+
+    description: str | None
+    welcome_channels: list[WelcomeChannelData]
+
+
+class WelcomeChannelData(TypedDict):
+    """Welcome channel."""
+
+    channel_id: int
+    description: str
+    emoji_id: int | None
+    emoji_name: str | None
+
+
+class StageInstanceData(TypedDict):
+    """Stage instance."""
+
+    id: int
+    guild_id: int
+    channel_id: int
+    topic: str
+    privacy_level: int
+    discoverable_disabled: bool
+
+
+class _GuildScheduledEventDataBase(TypedDict):
+    """Guild scheduled event."""
+
+    id: int
+    guild_id: int
+    channel_id: int | None
+    creator_id: int | None
+    name: str
+    scheduled_start_time: str
+    scheduled_end_time: str | None
+    privacy_level: int
+    status: int
+    entity_type: int
+    entity_id: int | None
+    entity_metadata: EntityMetadata | None
+
+
+class GuildScheduledEventData(_GuildScheduledEventDataBase, total=False):
+    """Guild scheduled event."""
+
+    description: str
+    creator: UserData
+    user_count: int
+
+
+class EntityMetadata(TypedDict, total=False):
+    """Entity metadata."""
+
+    location: str
 
 
 # https://discord.com/developers/docs/resources/application#application-object
-# TODO: most of this
 class GatewayResponse(TypedDict):
     """Gateway response."""
 
@@ -353,11 +739,9 @@ class ReadyEventData(TypedDict):
 
     v: int
     user: UserData
-    guilds: list[object]  # we dont use this
+    guilds: list[GuildData]  # we dont use this
     session_id: str
     application: ApplicationData
-
-    # TODO: shard
 
 
 # https://discord.com/developers/docs/interactions/application-commands#application-command-object
