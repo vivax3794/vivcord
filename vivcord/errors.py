@@ -22,7 +22,7 @@ class HttpError(Exception):
             http_code (int): This errors http code
             raw_error (ErrorResponse): Raw discord error
         """
-        super().__init__(raw_error["message"])
+        super().__init__(raw_error)
         self.http_code = http_code
         self.raw_error = raw_error
 

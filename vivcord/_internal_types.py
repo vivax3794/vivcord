@@ -99,3 +99,48 @@ class ReadyEventData(TypedDict):
     application: ApplicationData
 
     # TODO: shard
+
+
+# https://discord.com/developers/docs/interactions/application-commands#application-command-object
+class _CommandStructureBase(TypedDict):
+    """Application command structure."""
+
+    name: str
+    description: str
+
+
+class CommandStructure(_CommandStructureBase, total=False):
+    """Application command structure."""
+
+    type: int  # noqa: A003
+    options: list[CommandOption]
+    default_permission: bool
+
+
+# https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-option-structure
+class _CommandOptionBase(TypedDict):
+    """Slash command options."""
+
+    type: int  # noqa: A003
+    name: str
+    description: str
+
+
+class CommandOption(_CommandOptionBase, total=False):
+    """Slash command options."""
+
+    required: bool
+    choices: list[CommandChoice]
+    options: list[CommandOption]
+    channel_types: list[int]
+    min_value: int | float
+    max_value: int | float
+    autocomplete: bool
+
+
+# https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-option-choice-structure
+class CommandChoice(TypedDict):
+    """A possible choice for a command Option."""
+
+    name: str
+    value: str | int | float

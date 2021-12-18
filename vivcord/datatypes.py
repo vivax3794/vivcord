@@ -4,11 +4,12 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
-from enum import Enum
+from enum import IntEnum
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from . import _internal_types as internal
+    from .client import Client
 
 # https://discord.com/developers/docs/reference#convert-snowflake-to-datetime
 DISCORD_EPOCH = 1420070400000
@@ -148,7 +149,7 @@ class UserFlags:
 
 
 # https://discord.com/developers/docs/resources/user#user-object-premium-types
-class NitroType(Enum):
+class NitroType(IntEnum):
     """The users nitro type."""
 
     Nothing = 0
@@ -160,15 +161,18 @@ class NitroType(Enum):
 class User:
     """Reperesents a user."""
 
-    def __init__(self, data: internal.UserData) -> None:
+    def __init__(self, client: Client, data: internal.UserData) -> None:
         """
         Construct a User instance.
 
         You should not construct this yourself.
 
         Args:
+            client (Client): Discord client
             data (internal.UserData): The raw user data
         """
+        self._client = client
+
         self.id_ = Snowflake(data["id"])
         self.username = data["username"]
         self.discriminator = data["discriminator"]
@@ -192,16 +196,47 @@ class User:
         self.private_flags = UserFlags(data["flags"]) if "flags" in data else None
 
 
+class Guild:
+    # TODO:
+    pass
+
+
+class Member:
+    # TODO:
+    pass
+
+
+class ChannelType(IntEnum):
+    # TODO:
+    IDK = 1
+
+
+class Channel:
+    # TODO:
+    pass
+
+
+class Message:
+    # TODO:
+    pass
+
+
+class Role:
+    # TODO:
+    pass
+
+
 class Application:
     """A discord application."""
 
-    def __init__(self, data: internal.ApplicationData) -> None:
+    def __init__(self, client: Client, data: internal.ApplicationData) -> None:
         """
         Create application instance.
 
         Args:
+            client (Client): Discord client
             data (internal.ApplicationData): Data from discord
         """
         self.id_ = Snowflake(data["id"])
-        self.owner = User(data["owner"]) if "owner" in data else None
+        self.owner = User(client, data["owner"]) if "owner" in data else None
         # TODO: more of this

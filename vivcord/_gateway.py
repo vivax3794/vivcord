@@ -96,8 +96,6 @@ class Gateway:
 
         self._ws = None
         self._waiters: list[_EventWaiter[Any]] = []
-        self._callback_tasks: list[asyncio.Task[None]] = []
-        self._hearthbeat_task: asyncio.Task[None] | None = None
         self._last_sequence: int | None = None
 
     def _parse_event(self, response: GatewayResponse) -> events.Event:
@@ -117,7 +115,7 @@ class Gateway:
         self._last_sequence = response["s"]
 
         event_type = event_map_manager.get_type(op, type_)
-        return event_type(data)
+        return event_type(self._client, data)
 
     async def wait_for(self, event_type: type[EventT]) -> EventT:
         """
@@ -145,6 +143,10 @@ class Gateway:
             oauth (str): Discord bot oauth token.
             intents (datatypes.Intents): Intents to pass to discord.
         """
+        asyncio.get_running_loop().set_exception_handler(
+            lambda a, b: logger.error(f"{a}, {b}")
+        )
+
         # https://discord.com/developers/docs/topics/gateway#connecting-to-the-gateway
         logger.info("starting gateway")
         self._ws = await self._session.ws_connect(
@@ -155,12 +157,12 @@ class Gateway:
             },
         )
 
-        read_loop_task = asyncio.create_task(self._read_loop())
+        self._client.task_manger.add_task(asyncio.create_task(self._read_loop()))
         logger.info("waiting for hello")
         hello = await self.wait_for(events.Hello)
 
-        self._hearthbeat_task = asyncio.create_task(
-            self._hearthbeat(hello.heartbeat_interval / 1000)
+        self._client.task_manger.add_task(
+            asyncio.create_task(self._hearthbeat(hello.heartbeat_interval / 1000))
         )
 
         # https://discord.com/developers/docs/topics/gateway#identify
@@ -182,8 +184,6 @@ class Gateway:
 
         _ = await self.wait_for(events.Ready)
 
-        await read_loop_task
-
     async def close(self) -> None:
         """
         Close the connection.
@@ -192,16 +192,11 @@ class Gateway:
             ValueError: socket was not open
         """
         logger.debug("closing")
+
         if self._ws is None:
             raise ValueError("Socket not open.")
 
         _ = await self._ws.close()
-
-        if self._hearthbeat_task is not None:
-            _ = self._hearthbeat_task.cancel()
-
-        for task in self._callback_tasks:
-            await task
 
     async def _read_loop(self) -> None:
         """
@@ -217,7 +212,7 @@ class Gateway:
             data = await self._ws.receive_json()
             event = self._parse_event(data)
             event_task = asyncio.create_task(self._on_event(event))
-            self._callback_tasks.append(event_task)
+            self._client.task_manger.add_task(event_task)
 
     async def _hearthbeat(self, interval: float) -> None:
         """

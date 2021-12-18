@@ -12,6 +12,7 @@ if TYPE_CHECKING:
     from typing import Any, Callable
 
     from . import _internal_types as internal
+    from .client import Client
 
 
 EventT = TypeVar("EventT", bound="Event")
@@ -73,9 +74,14 @@ class EventMapManager:
             type[Event]: The event type that should be used
         """
         if op == 0 and type_ is not None:
-            return self.types.get(type_, Event)
+            event_type = self.types.get(type_, Event)
         else:
-            return self.opcodes.get(op, Event)
+            event_type = self.opcodes.get(op, Event)
+
+        if event_type is Event:
+            logger.error(f"Unknown event: {op}, {type_!r}")
+
+        return event_type
 
 
 event_map_manager = EventMapManager()
@@ -84,17 +90,18 @@ event_map_manager = EventMapManager()
 class Event:
     """Discord event."""
 
-    def __init__(self, data: dict[str, Any]) -> None:
+    def __init__(self, client: Client, data: dict[str, Any]) -> None:
         """
         Create default event.
 
         Prints a warning as this type should not be used directly.
 
         Args:
+            client (Client): Discord client
             data (dict[str, Any]): data to be used
         """
         if self.__class__ == Event:
-            logger.warning(f"unknown event: {data!r}")
+            logger.warning(f"Event instance created with data {data}")
 
 
 # https://discord.com/developers/docs/topics/gateway#hello-hello-structure
@@ -102,11 +109,12 @@ class Event:
 class Hello(Event):
     """The gateway hello event."""
 
-    def __init__(self, data: internal.HelloEventData) -> None:
+    def __init__(self, client: Client, data: internal.HelloEventData) -> None:
         """
         Create hello event.
 
         Args:
+            client (Client): Discord client
             data (dict[str, Any]): data to be used
         """
         self.heartbeat_interval = data["heartbeat_interval"]
@@ -125,14 +133,15 @@ class HearthbeatACK(Event):
 class Ready(Event):
     """event sent when gateway is ready."""
 
-    def __init__(self, data: internal.ReadyEventData) -> None:
+    def __init__(self, client: Client, data: internal.ReadyEventData) -> None:
         """
         Create ready event.
 
         Args:
+            client (Client): Discord client
             data (dict[str, Any]): data to be used
         """
         self.version = data["v"]
-        self.user = datatypes.User(data["user"])
-        self.application = datatypes.Application(data["application"])
+        self.user = datatypes.User(client, data["user"])
+        self.application = datatypes.Application(client, data["application"])
         # Todo: more of this
