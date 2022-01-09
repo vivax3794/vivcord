@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Generic, Protocol, TypeVar
+from typing import TYPE_CHECKING, Generic, ParamSpec, Protocol, TypeVar
 
 if TYPE_CHECKING:
     from . import _internal_types as internal
@@ -11,12 +11,14 @@ if TYPE_CHECKING:
 
 
 T = TypeVar("T")
+P = ParamSpec("P")
 
 
 class ApplicationCommand(Protocol):
     """A discord command."""
 
     guild_id: datatypes.Snowflake | int | None
+    name: str
 
     def convert_to_dict(self) -> internal.CommandStructure:
         """
@@ -50,4 +52,10 @@ class CommandOption(ABC, Generic[T]):
         Returns:
             internal.CommandOption: The resulting dict
         """
+        ...
+
+
+class Messageable(ABC):
+    @abstractmethod
+    async def send(self, data: datatypes.SendMessageData) -> None:
         ...

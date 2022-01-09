@@ -85,3 +85,41 @@ class Api:
             json=command,
         ) as resp:
             await self._handle_response(resp)
+
+    async def overwrite_global_commands(
+        self, commands: list[internal.CommandStructure]
+    ) -> None:
+        """
+        Overwrite all global commands.
+
+        Args:
+            commands (list[internal.CommandStructure]): List of commands.
+        """
+        # https://discord.com/developers/docs/interactions/application-commands#bulk-overwrite-global-application-commands
+        logger.info("overwriting global commands")
+
+        async with self.session.put(
+            f"{BASE_URL}/applications/{self.application_id}/commands", json=commands
+        ) as resp:
+            await self._handle_response(resp)
+
+    async def overwrite_guild_commands(
+        self,
+        guild_id: datatypes.Snowflake | int,
+        commands: list[internal.CommandStructure],
+    ) -> None:
+        """
+        Overwrite all guild commands.
+
+        Args:
+            guild_id (datatypes.Snowflake): Guild to overwrite in.
+            commands (list[internal.CommandStructure]): List of commands.
+        """
+        # https://discord.com/developers/docs/interactions/application-commands#bulk-overwrite-guild-application-commands
+        logger.info(f"overwriting guild commands on guild {guild_id!r}")
+
+        async with self.session.put(
+            f"{BASE_URL}/applications/{self.application_id}/guilds/{guild_id}/commands",
+            json=commands,
+        ) as resp:
+            await self._handle_response(resp)

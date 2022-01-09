@@ -121,8 +121,6 @@ class Gateway:
         """
         Wait for an event to happen.
 
-        This call is blocking, it will never end!.
-
         Args:
             event_type (events.Event): The event type to wait for.
 
@@ -143,10 +141,6 @@ class Gateway:
             oauth (str): Discord bot oauth token.
             intents (datatypes.Intents): Intents to pass to discord.
         """
-        asyncio.get_running_loop().set_exception_handler(
-            lambda a, b: logger.error(f"{a}, {b}")
-        )
-
         # https://discord.com/developers/docs/topics/gateway#connecting-to-the-gateway
         logger.info("starting gateway")
         self._ws = await self._session.ws_connect(

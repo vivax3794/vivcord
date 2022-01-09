@@ -34,10 +34,10 @@ class TaskManger:
         # https://github.com/microsoft/pyright/issues/2721
         if asyncio.iscoroutine(task):
             task = asyncio.create_task(task)
-            self._tasks.append(task)
         else:
             task = cast(asyncio.Task[None], task)
-            self._tasks.append(task)
+
+        self._tasks.append(task)
 
     async def start(self):
         """Start the task managing loop."""

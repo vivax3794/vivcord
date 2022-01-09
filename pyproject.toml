@@ -34,9 +34,6 @@ flake8-simplify = "*"
 flake8-variables-names = "*"
 flake8-functions = "*"
 
-# WARNING: does not work on: async for
-flake8-expression-complexity = "*"
-
 flake8-use-fstring = "*"
 flake8-length = "*"
 dlint = "*"
@@ -65,7 +62,7 @@ reportImportCycles = "none"
 [tool.taskipy.tasks]
 lint = { cmd = "flake8 .; pyright", help = "Lints project" }
 pyright = { cmd = "pyright", help = "Checks the types in the project" }
-format = { cmd = "isort .; black .", help = "Runs the black python formatter" }
+format = { cmd = "isort .; black . --target-version py310", help = "Runs the black python formatter" }
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

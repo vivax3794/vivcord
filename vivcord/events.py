@@ -103,6 +103,9 @@ class Event:
         if self.__class__ == Event:
             logger.warning(f"Event instance created with data {data}")
 
+    def __str__(self) -> str:
+        return self.__class__.__name__
+
 
 # https://discord.com/developers/docs/topics/gateway#hello-hello-structure
 @event_map_manager.register_op(10)

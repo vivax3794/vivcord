@@ -1,9 +1,22 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List, Literal, TypedDict
+from typing import TYPE_CHECKING, Literal, TypedDict
 
 if TYPE_CHECKING:
     from typing import Any, TypeAlias
+
+
+from loguru import logger
+
+
+class ToBeImplemented:
+    """Not yet implemented attr."""
+
+    def __init__(self) -> None:
+        logger.warning("Not yet implemented.")
+
+    def __str__(self) -> str:
+        return "ToBeImplemented()"
 
 
 # https://discord.com/developers/docs/reference#error-messages
@@ -57,14 +70,14 @@ class UserData(_UserDataBase, total=False):
     public_flags: int
 
 
+# https://discord.com/developers/docs/resources/guild#guild-member-object
 class _MemberDataBase(TypedDict):
     """Member data from discord"""
 
     roles: list[int]
+    joined_at: str
     deaf: bool
     mute: bool
-    pending: bool
-    permissions: str
 
 
 class MemberData(_MemberDataBase, total=False):
@@ -73,8 +86,10 @@ class MemberData(_MemberDataBase, total=False):
     user: UserData
     nick: str | None
     avatar: str | None
-    joined_at: str
     premium_since: str | None
+    pending: bool
+    permissions: str
+    communication_disabled_until: str | None
 
 
 class RoleTagData(TypedDict, total=False):

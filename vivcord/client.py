@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, Callable, Coroutine, TypeVar
 
 import aiohttp
 
-from . import _utils, events
+from . import events, context
 from ._api import Api
 from ._gateway import Gateway
 from .taskmanager import TaskManger
@@ -16,6 +16,7 @@ from .taskmanager import TaskManger
 if TYPE_CHECKING:
     from typing import TypeAlias
 
+    from . import _internal_types as internal
     from . import datatypes, traits
     from .datatypes import Snowflake
 
@@ -43,19 +44,25 @@ class Client:
             list[EventCallback[events.Event]],
         ] = defaultdict(list)
 
-        self._commands: list[traits.ApplicationCommand] = []
+        self._commands: dict[str, traits.ApplicationCommand] = {}
 
         self.task_manger = TaskManger()
 
     async def _register_commands(self) -> None:
         """Register all slash commnands with the api."""
-        for command in self._commands:
+        global_commands: list[internal.CommandStructure] = []
+        guild_commands: dict[int, list[internal.CommandStructure]] = defaultdict(list)
+
+        for command in self._commands.values():
             if command.guild_id is None:
-                await self.api.register_command(command.convert_to_dict())
+                global_commands.append(command.convert_to_dict())
             else:
-                await self.api.register_guild_command(
-                    command.guild_id, command.convert_to_dict()
-                )
+                guild_commands[int(command.guild_id)].append(command.convert_to_dict())
+
+        await self.api.overwrite_global_commands(global_commands)
+
+        for guild_id, commands in guild_commands.items():
+            await self.api.overwrite_guild_commands(guild_id, commands)
 
     async def start(self, oauth: str, intents: datatypes.Intents) -> None:
         """
@@ -69,8 +76,6 @@ class Client:
         """
         headers = {"Authorization": f"Bot {oauth}"}
         session = aiohttp.ClientSession(headers=headers)
-
-        session.post = _utils.call_logger(session.post)
 
         self.api = Api(session)
 
@@ -113,6 +118,9 @@ class Client:
         if isinstance(event, events.Ready):
             self.api.application_id = event.application.id_
             await self._register_commands()
+        
+        elif isinstance(event, context._ApplicationCommandContext):
+            await event.call_callback()
 
         tasks: list[Coroutine[Any, Any, None]] = [
             callback(event) for callback in self._event_handlers[type(event)]
@@ -156,4 +164,7 @@ class Client:
         if command.guild_id is None:
             command.guild_id = self.default_guild_id
 
-        self._commands.append(command)
+        self._commands[command.name] = command
+    
+    def get_command(self, name: str) -> traits.ApplicationCommand | None:
+        return self._commands.get(name)
