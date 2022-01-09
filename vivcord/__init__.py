@@ -8,10 +8,11 @@ __all__ = [
     "errors",
     "events",
     "traits",
-    "SlashCommandContext"
+    "SlashCommandContext",
+    "SendMessageData"
 ]
 
 from . import commands, datatypes, errors, events, traits
 from .client import Client
-from .datatypes import Intents
 from .context import SlashCommandContext
+from .datatypes import Intents, SendMessageData

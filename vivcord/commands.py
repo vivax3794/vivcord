@@ -6,11 +6,11 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Concatenate,
     Coroutine,
     Generic,
     ParamSpec,
     TypeVar,
-    Concatenate
 )
 
 from . import datatypes, traits
@@ -25,7 +25,9 @@ ChoiceT = TypeVar("ChoiceT", str, int, float)
 OptionT = TypeVar("OptionT")
 ParamS = ParamSpec("ParamS")
 
-CommandCallback: TypeAlias = Callable[Concatenate["context.SlashCommandContext", ParamS], Coroutine[Any, Any, None]]
+CommandCallback: TypeAlias = Callable[
+    Concatenate["context.SlashCommandContext", ParamS], Coroutine[Any, Any, None]
+]
 AutocompleteFunc: TypeAlias = Callable[[str], list["CommandChoice[ChoiceT]"]]
 
 

@@ -123,3 +123,12 @@ class Api:
             json=commands,
         ) as resp:
             await self._handle_response(resp)
+    
+    async def respond_to_interaction(self, int_id: int, int_token: str, data: dict[str, object]) -> None:
+        logger.debug(f"responding to interaction {int_id}")
+
+        async with self.session.post(
+            f"{BASE_URL}/interactions/{int_id}/{int_token}/callback",
+            json=data
+        ) as resp:
+            await self._handle_response(resp)

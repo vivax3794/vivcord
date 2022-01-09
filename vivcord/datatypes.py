@@ -503,8 +503,13 @@ class Message:
 
 
 class SendMessageData:
-    def __init__(self) -> None:
-        pass
+    def __init__(self, content: str) -> None:
+        self.content = content
+    
+    def convert_to_dict(self) -> dict[str, str]:
+        return {
+            "content": self.content
+        }
 
 
 class Embed:

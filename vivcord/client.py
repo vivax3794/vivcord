@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, Callable, Coroutine, TypeVar
 
 import aiohttp
 
-from . import events, context
+from . import context, events
 from ._api import Api
 from ._gateway import Gateway
 from .taskmanager import TaskManger
@@ -118,9 +118,9 @@ class Client:
         if isinstance(event, events.Ready):
             self.api.application_id = event.application.id_
             await self._register_commands()
-        
+
         elif isinstance(event, context._ApplicationCommandContext):
-            await event.call_callback()
+            await event.handle_interaction()
 
         tasks: list[Coroutine[Any, Any, None]] = [
             callback(event) for callback in self._event_handlers[type(event)]
@@ -165,6 +165,6 @@ class Client:
             command.guild_id = self.default_guild_id
 
         self._commands[command.name] = command
-    
+
     def get_command(self, name: str) -> traits.ApplicationCommand | None:
         return self._commands.get(name)

@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 from loguru import logger
 
-from . import datatypes, events, helpers, commands
+from . import commands, datatypes, events, helpers
 
 if TYPE_CHECKING:
     from typing import TypeAlias
@@ -27,14 +27,16 @@ class ApplicationCommandType(IntEnum):
     message = 3
 
 
-OPTION_VALS: TypeAlias = (str
-            | int
-            | bool
-            | float
-            | datatypes.User
-            | datatypes.Member
-            | datatypes.Channel
-            | datatypes.Role)
+OPTION_VALS: TypeAlias = (
+    str
+    | int
+    | bool
+    | float
+    | datatypes.User
+    | datatypes.Member
+    | datatypes.Channel
+    | datatypes.Role
+)
 
 
 # TODO: class _InteractionContext(traits.Messageable):
@@ -43,6 +45,7 @@ class _InteractionContext(events.Event):
         self._client = client
 
         self.type = InteractionType(data["type"])
+        self._id = data["id"]
         self._token = data["token"]
         self.guild_id = data.get("guild_id")
         self.channel_id = data.get("channel_id")
@@ -52,7 +55,7 @@ class _InteractionContext(events.Event):
         )
         self.user = datatypes.User(client, data["user"]) if "user" in data else None
 
-    async def call_callback(self) -> None:
+    async def handle_interaction(self) -> None:
         raise NotImplementedError()
 
 
@@ -70,20 +73,28 @@ class _ApplicationCommandContext(_InteractionContext):
             helpers.check_expected_value(int_data.get("type"), -1)
         )
 
+    async def send(self, data: datatypes.SendMessageData) -> None:
+        await self._client.api.respond_to_interaction(
+            self._id,
+            self._token,
+            {
+                "type": 4,
+                "data": data.convert_to_dict()
+            }
+        )
+
 
 class SlashCommandContext(_ApplicationCommandContext):
     def __init__(self, client: Client, data: internal.InteractionEventData) -> None:
         super().__init__(client, data)
 
         self._resolved = self._int_data.get("resolved", {})
-        self._arguments: dict[
-            str,
-            OPTION_VALS
-        ] = {}
+        self._arguments: dict[str, OPTION_VALS] = {}
 
         for value in self._int_data.get("options", []):
             option_value = value.get("value", 0)
-            logger.debug(f"parsing data {option_value!r} of type {value['type']}")
+            logger.debug(f"parsing argument {value['name']} with data: {option_value!r} of type {value['type']}")
+
             match value["type"]:
                 case 3 | 4 | 10:
                     user_given_value = option_value
@@ -121,8 +132,8 @@ class SlashCommandContext(_ApplicationCommandContext):
                     raise ValueError(f"Unknown option type {value['type']}")
 
             self._arguments[value["name"]] = user_given_value
-    
-    async def call_callback(self) -> None:
+
+    async def handle_interaction(self) -> None:
         command = self._client.get_command(self._name)
         if command is None:
             raise KeyError(f"application command {self._name!r} not found!")
@@ -134,6 +145,7 @@ class SlashCommandContext(_ApplicationCommandContext):
             arguments.append(self._arguments.get(option.name))
 
         await command.func(self, *arguments)
+
 
 @events.event_map_manager.register_type("INTERACTION_CREATE")  # type: ignore
 def parse_interaction(
