@@ -9,7 +9,7 @@ __all__ = [
     "events",
     "traits",
     "SlashCommandContext",
-    "SendMessageData"
+    "SendMessageData",
 ]
 
 from . import commands, datatypes, errors, events, traits

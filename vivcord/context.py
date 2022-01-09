@@ -75,12 +75,7 @@ class _ApplicationCommandContext(_InteractionContext):
 
     async def send(self, data: datatypes.SendMessageData) -> None:
         await self._client.api.respond_to_interaction(
-            self._id,
-            self._token,
-            {
-                "type": 4,
-                "data": data.convert_to_dict()
-            }
+            self._id, self._token, {"type": 4, "data": data.convert_to_dict()}
         )
 
 
@@ -93,7 +88,9 @@ class SlashCommandContext(_ApplicationCommandContext):
 
         for value in self._int_data.get("options", []):
             option_value = value.get("value", 0)
-            logger.debug(f"parsing argument {value['name']} with data: {option_value!r} of type {value['type']}")
+            logger.debug(
+                f"parsing argument {value['name']} with data: {option_value!r} of type {value['type']}"
+            )
 
             match value["type"]:
                 case 3 | 4 | 10:
