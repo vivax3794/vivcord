@@ -1,17 +1,18 @@
 from __future__ import annotations
 
+import typing
 from enum import IntEnum
 from typing import TYPE_CHECKING
 
 from loguru import logger
 
-from . import commands, datatypes, events, helpers
+from vivcord import commands, datatypes, events, helpers
 
 if TYPE_CHECKING:
     from typing import TypeAlias
 
-    from . import _internal_types as internal
-    from .client import Client
+    from vivcord import _typed_dicts as type_dicts
+    from vivcord.client import Client
 
 
 class InteractionType(IntEnum):
@@ -41,7 +42,7 @@ OPTION_VALS: TypeAlias = (
 
 # TODO: class _InteractionContext(traits.Messageable):
 class _InteractionContext(events.Event):
-    def __init__(self, client: Client, data: internal.InteractionEventData) -> None:
+    def __init__(self, client: Client, data: type_dicts.InteractionEventData) -> None:
         self._client = client
 
         self.type = InteractionType(data["type"])
@@ -59,8 +60,8 @@ class _InteractionContext(events.Event):
         raise NotImplementedError()
 
 
-class _ApplicationCommandContext(_InteractionContext):
-    def __init__(self, client: Client, data: internal.InteractionEventData) -> None:
+class ApplicationCommandContext(_InteractionContext):
+    def __init__(self, client: Client, data: type_dicts.InteractionEventData) -> None:
         super().__init__(client, data)
 
         int_data = data.get("data")
@@ -79,11 +80,13 @@ class _ApplicationCommandContext(_InteractionContext):
         )
 
 
-class SlashCommandContext(_ApplicationCommandContext):
-    def __init__(self, client: Client, data: internal.InteractionEventData) -> None:
+class SlashCommandContext(ApplicationCommandContext):
+    def __init__(self, client: Client, data: type_dicts.InteractionEventData) -> None:
         super().__init__(client, data)
 
-        self._resolved = self._int_data.get("resolved", {})
+        self._resolved = helpers.fail_if_none(
+            self._int_data.get("resolved"), KeyError("Expected resolved key")
+        )
         self._arguments: dict[str, OPTION_VALS] = {}
 
         for value in self._int_data.get("options", []):
@@ -92,41 +95,67 @@ class SlashCommandContext(_ApplicationCommandContext):
                 f"parsing argument {value['name']} with data: {option_value!r} of type {value['type']}"
             )
 
-            match value["type"]:
-                case 3 | 4 | 10:
-                    user_given_value = option_value
-                case 6:
-                    if option_value in self._resolved.get("users", {}):
-                        user_given_value = datatypes.User(
+            user_given_value = OPTION_VALS
+            type_ = value["type"]
+
+            if type_ in {3, 4, 10}:
+                user_given_value = option_value
+            else:
+                option_value = typing.cast(int, option_value)
+
+                match value["type"]:
+                    case 6:
+                        if option_value in self._resolved.get("users", {}):
+                            user_given_value = datatypes.User(
+                                client,
+                                helpers.fail_if_none(
+                                    self._resolved.get("users"),
+                                    KeyError("Expected users key"),
+                                )[option_value],
+                            )
+                        else:
+                            user_given_value = datatypes.Member(
+                                client,
+                                helpers.fail_if_none(
+                                    self._resolved.get("members"),
+                                    KeyError("Expected members key"),
+                                )[option_value],
+                            )
+                    case 7:
+                        user_given_value = datatypes.Channel(
                             client,
-                            self._resolved["users"][option_value],  # type: ignore
+                            helpers.fail_if_none(
+                                self._resolved.get("channels"),
+                                KeyError("Expected channels key"),
+                            )[option_value],
                         )
-                    else:
-                        user_given_value = datatypes.Member(
-                            client,
-                            self._resolved["members"][option_value],  # type: ignore
-                        )
-                case 7:
-                    user_given_value = datatypes.Channel(
-                        client, self._resolved["channels"][option_value]  # type: ignore
-                    )
-                case 8:
-                    user_given_value = datatypes.Role(
-                        client, self._resolved["roles"][option_value]  # type: ignore
-                    )
-                case 9:
-                    if option_value in self._resolved.get("users", {}):
-                        user_given_value = datatypes.User(
-                            client,
-                            self._resolved["users"][option_value],  # type: ignore
-                        )
-                    else:
+                    case 8:
                         user_given_value = datatypes.Role(
                             client,
-                            self._resolved["roles"][option_value],  # type: ignore
+                            helpers.fail_if_none(
+                                self._resolved.get("roles"),
+                                KeyError("Expected roles key"),
+                            )[option_value],
                         )
-                case _:
-                    raise ValueError(f"Unknown option type {value['type']}")
+                    case 9:
+                        if option_value in self._resolved.get("users", {}):
+                            user_given_value = datatypes.User(
+                                client,
+                                helpers.fail_if_none(
+                                    self._resolved.get("users"),
+                                    KeyError("Expected users key"),
+                                )[option_value],
+                            )
+                        else:
+                            user_given_value = datatypes.Role(
+                                client,
+                                helpers.fail_if_none(
+                                    self._resolved.get("roles"),
+                                    KeyError("Expected roles key"),
+                                )[option_value],
+                            )
+                    case _:
+                        raise ValueError(f"Unknown option type {value['type']}")
 
             self._arguments[value["name"]] = user_given_value
 
@@ -134,7 +163,7 @@ class SlashCommandContext(_ApplicationCommandContext):
         command = self._client.get_command(self._name)
         if command is None:
             raise KeyError(f"application command {self._name!r} not found!")
-        if not isinstance(command, commands._SlashCommand):
+        if not isinstance(command, commands.SlashCommand):
             raise TypeError("expected slash command")
 
         arguments: list[OPTION_VALS | None] = []
@@ -146,11 +175,16 @@ class SlashCommandContext(_ApplicationCommandContext):
 
 @events.event_map_manager.register_type("INTERACTION_CREATE")  # type: ignore
 def parse_interaction(
-    client: Client, data: internal.InteractionEventData
+    client: Client, data: type_dicts.InteractionEventData
 ) -> _InteractionContext:
     match data["type"]:
         case 2:
-            match data.get("data", {}).get("type"):
+            if "data" not in data:
+                raise KeyError("missing data key in interaction payload.")
+
+            type_ = data.get("type", -1)
+
+            match type_:
                 case 1:
                     return SlashCommandContext(client, data)
                 case _:

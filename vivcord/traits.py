@@ -6,8 +6,8 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Generic, ParamSpec, Protocol, TypeVar
 
 if TYPE_CHECKING:
-    from . import _internal_types as internal
-    from . import datatypes
+    from vivcord import _typed_dicts as type_dicts
+    from vivcord import datatypes
 
 
 T = TypeVar("T")
@@ -20,12 +20,12 @@ class ApplicationCommand(Protocol):
     guild_id: datatypes.Snowflake | int | None
     name: str
 
-    def convert_to_dict(self) -> internal.CommandStructure:
+    def convert_to_dict(self) -> type_dicts.CommandStructure:
         """
         Convert the command to a dict.
 
         Returns:
-            internal.CommandStructure: The resulting dict
+            type_dicts.CommandStructure: The resulting dict
         """
         ...
 
@@ -45,12 +45,12 @@ class CommandOption(ABC, Generic[T]):
         self.description = description
 
     @abstractmethod
-    def convert_to_dict(self) -> internal.CommandOption:
+    def convert_to_dict(self) -> type_dicts.CommandOption:
         """
         Convert the option to a dict.
 
         Returns:
-            internal.CommandOption: The resulting dict
+            type_dicts.CommandOption: The resulting dict
         """
         ...
 

@@ -7,12 +7,12 @@ from typing import TYPE_CHECKING
 import aiohttp
 from loguru import logger
 
-from . import errors
-from ._constants import BASE_URL
+from vivcord import errors
+from vivcord._constants import BASE_URL
 
 if TYPE_CHECKING:
-    from . import _internal_types as internal
-    from . import datatypes
+    from vivcord import _typed_dicts as type_dicts
+    from vivcord import datatypes
 
 
 class Api:
@@ -48,12 +48,12 @@ class Api:
             data = await resp.json()
             return data["url"]
 
-    async def register_command(self, command: internal.CommandStructure) -> None:
+    async def register_command(self, command: type_dicts.CommandStructure) -> None:
         """
         Register a application command.
 
         Args:
-            command (internal.CommandStructure): Data for command
+            command (type_dicts.CommandStructure): Data for command
         """
         # https://discord.com/developers/docs/interactions/application-commands#create-global-application-command
         logger.info(f"registering global command {command['name']!r}")
@@ -64,14 +64,14 @@ class Api:
             await self._handle_response(resp)
 
     async def register_guild_command(
-        self, guild_id: datatypes.Snowflake | int, command: internal.CommandStructure
+        self, guild_id: datatypes.Snowflake | int, command: type_dicts.CommandStructure
     ) -> None:
         """
         Regiser a application command for only 1 guild.
 
         Args:
             guild_id (datatypes.Snowflake): Guild to register in.
-            command (internal.CommandStructure): Data for command
+            command (type_dicts.CommandStructure): Data for command
         """
         # https://discord.com/developers/docs/interactions/application-commands#create-guild-application-command
         logger.info(
@@ -87,13 +87,13 @@ class Api:
             await self._handle_response(resp)
 
     async def overwrite_global_commands(
-        self, commands: list[internal.CommandStructure]
+        self, commands: list[type_dicts.CommandStructure]
     ) -> None:
         """
         Overwrite all global commands.
 
         Args:
-            commands (list[internal.CommandStructure]): List of commands.
+            commands (list[type_dicts.CommandStructure]): List of commands.
         """
         # https://discord.com/developers/docs/interactions/application-commands#bulk-overwrite-global-application-commands
         logger.info("overwriting global commands")
@@ -106,14 +106,14 @@ class Api:
     async def overwrite_guild_commands(
         self,
         guild_id: datatypes.Snowflake | int,
-        commands: list[internal.CommandStructure],
+        commands: list[type_dicts.CommandStructure],
     ) -> None:
         """
         Overwrite all guild commands.
 
         Args:
             guild_id (datatypes.Snowflake): Guild to overwrite in.
-            commands (list[internal.CommandStructure]): List of commands.
+            commands (list[type_dicts.CommandStructure]): List of commands.
         """
         # https://discord.com/developers/docs/interactions/application-commands#bulk-overwrite-guild-application-commands
         logger.info(f"overwriting guild commands on guild {guild_id!r}")

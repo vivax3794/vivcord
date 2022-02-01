@@ -13,13 +13,13 @@ from typing import (
     TypeVar,
 )
 
-from . import datatypes, traits
+from vivcord import datatypes, traits
 
 if TYPE_CHECKING:
     from typing import TypeAlias
 
-    from . import _internal_types as internal
-    from . import context
+    from vivcord import _typed_dicts as type_dicts
+    from vivcord import context
 
 ChoiceT = TypeVar("ChoiceT", str, int, float)
 OptionT = TypeVar("OptionT")
@@ -31,7 +31,13 @@ CommandCallback: TypeAlias = Callable[
 AutocompleteFunc: TypeAlias = Callable[[str], list["CommandChoice[ChoiceT]"]]
 
 
-class _SlashCommand(Generic[ParamS]):
+class SlashCommand(Generic[ParamS]):
+    """
+    Discord slash command.
+
+    These are commands that are invoked with `/name 1 2 yes`.
+    """
+
     def __init__(
         self,
         name: str,
@@ -40,6 +46,16 @@ class _SlashCommand(Generic[ParamS]):
         guild_id: datatypes.Snowflake | int | None,
         func: CommandCallback[ParamS],
     ) -> None:
+        """
+        Create slash command
+
+        Args:
+            name (str): Name of the command
+            description (str): Command description
+            default_permission (bool): Should this command be enabled by default?
+            guild_id (datatypes.Snowflake | int | None): Potential guild_id for this command
+            func (CommandCallback[ParamS]): Callback function for the command
+        """
         self.name = name
         self.description = description
         self.default_permission = default_permission
@@ -48,7 +64,13 @@ class _SlashCommand(Generic[ParamS]):
 
         self.options: list[traits.CommandOption[Any]] = []
 
-    def convert_to_dict(self: _SlashCommand[[]]) -> internal.CommandStructure:
+    def convert_to_dict(self: SlashCommand[[]]) -> type_dicts.CommandStructure:
+        """
+        Convert slash command to json structure.
+
+        Returns:
+            type_dicts.CommandStructure: command json
+        """
         return {
             "type": 1,
             "name": self.name,
@@ -72,12 +94,12 @@ class CommandChoice(Generic[ChoiceT]):
         self.name = name
         self.value = value
 
-    def convert_to_dict(self) -> internal.CommandChoice:
+    def convert_to_dict(self) -> type_dicts.CommandChoice:
         """
         Convert choice to dict.
 
         Returns:
-            internal.CommandChoice: The resulting dict.
+            type_dicts.CommandChoice: The resulting dict.
         """
         return {"name": self.name, "value": self.value}
 
@@ -108,14 +130,14 @@ class CommandOptionString(traits.CommandOption[str]):
         self.choices = choices
         self.autocomplete = autocomplete
 
-    def convert_to_dict(self) -> internal.CommandOption:
+    def convert_to_dict(self) -> type_dicts.CommandOption:
         """
         Convert the option to a dict.
 
         Returns:
-            internal.CommandOption: The resulting dict
+            type_dicts.CommandOption: The resulting dict
         """
-        data: internal.CommandOption = {
+        data: type_dicts.CommandOption = {
             "type": 3,
             "name": self.name,
             "description": self.description,
@@ -163,14 +185,14 @@ class CommandOptionInt(traits.CommandOption[int]):
         self.max_value = max_value
         self.autocomplete = autocomplete
 
-    def convert_to_dict(self) -> internal.CommandOption:
+    def convert_to_dict(self) -> type_dicts.CommandOption:
         """
         Convert the option to a dict.
 
         Returns:
-            internal.CommandOption: The resulting dict
+            type_dicts.CommandOption: The resulting dict
         """
-        data: internal.CommandOption = {
+        data: type_dicts.CommandOption = {
             "type": 4,
             "name": self.name,
             "description": self.description,
@@ -207,12 +229,12 @@ class CommandOptionBoolean(traits.CommandOption[bool]):
         super().__init__(name, description)
         self.required = required
 
-    def convert_to_dict(self) -> internal.CommandOption:
+    def convert_to_dict(self) -> type_dicts.CommandOption:
         """
         Convert the option to a dict.
 
         Returns:
-            internal.CommandOption: The resulting dict
+            type_dicts.CommandOption: The resulting dict
         """
         return {
             "type": 5,
@@ -237,12 +259,12 @@ class CommandOptionUser(traits.CommandOption[datatypes.User | datatypes.Member])
         super().__init__(name, description)
         self.required = required
 
-    def convert_to_dict(self) -> internal.CommandOption:
+    def convert_to_dict(self) -> type_dicts.CommandOption:
         """
         Convert the option to a dict.
 
         Returns:
-            internal.CommandOption: The resulting dict
+            type_dicts.CommandOption: The resulting dict
         """
         return {
             "type": 6,
@@ -260,7 +282,7 @@ class CommandOptionChannel(traits.CommandOption[datatypes.Channel]):
         name: str,
         description: str,
         required: bool = True,
-        channel_types: list[datatypes.ChannelType] | None = None,
+        channel_types: list[datatypes.channel.ChannelType] | None = None,
     ) -> None:
         """
         Create CommandOptionChannel.
@@ -275,14 +297,14 @@ class CommandOptionChannel(traits.CommandOption[datatypes.Channel]):
         self.required = required
         self.channel_types = channel_types
 
-    def convert_to_dict(self) -> internal.CommandOption:
+    def convert_to_dict(self) -> type_dicts.CommandOption:
         """
         Convert the option to a dict.
 
         Returns:
-            internal.CommandOption: The resulting dict
+            type_dicts.CommandOption: The resulting dict
         """
-        data: internal.CommandOption = {
+        data: type_dicts.CommandOption = {
             "type": 7,
             "name": self.name,
             "description": self.description,
@@ -312,12 +334,12 @@ class CommandOptionRole(traits.CommandOption[datatypes.Role]):
         super().__init__(name, description)
         self.required = required
 
-    def convert_to_dict(self) -> internal.CommandOption:
+    def convert_to_dict(self) -> type_dicts.CommandOption:
         """
         Convert the option to a dict.
 
         Returns:
-            internal.CommandOption: The resulting dict
+            type_dicts.CommandOption: The resulting dict
         """
         return {
             "type": 8,
@@ -344,12 +366,12 @@ class CommandOptionMentionable(
         super().__init__(name, description)
         self.required = required
 
-    def convert_to_dict(self) -> internal.CommandOption:
+    def convert_to_dict(self) -> type_dicts.CommandOption:
         """
         Convert the option to a dict.
 
         Returns:
-            internal.CommandOption: The resulting dict
+            type_dicts.CommandOption: The resulting dict
         """
         return {
             "type": 9,
@@ -391,14 +413,14 @@ class CommandOptionFloat(traits.CommandOption[float]):
         self.max_value = max_value
         self.autocomplete = autocomplete
 
-    def convert_to_dict(self) -> internal.CommandOption:
+    def convert_to_dict(self) -> type_dicts.CommandOption:
         """
         Convert the option to a dict.
 
         Returns:
-            internal.CommandOption: The resulting dict
+            type_dicts.CommandOption: The resulting dict
         """
-        data: internal.CommandOption = {
+        data: type_dicts.CommandOption = {
             "type": 10,
             "name": self.name,
             "description": self.description,
@@ -425,7 +447,7 @@ def slash_command(
     description: str,
     default_permission: bool = True,
     guild_id: int | None = None,
-) -> Callable[[CommandCallback[ParamS]], _SlashCommand[ParamS]]:
+) -> Callable[[CommandCallback[ParamS]], SlashCommand[ParamS]]:
     """
     Convert function to a slash command.
 
@@ -439,15 +461,15 @@ def slash_command(
         Callable[[CommandCallback[ParamS]], _SlashCommand[ParamS]]: Decorator
     """
 
-    def decorator(func: CommandCallback[ParamS]) -> _SlashCommand[ParamS]:
-        return _SlashCommand(name, description, default_permission, guild_id, func)
+    def decorator(func: CommandCallback[ParamS]) -> SlashCommand[ParamS]:
+        return SlashCommand(name, description, default_permission, guild_id, func)
 
     return decorator
 
 
 def with_argument(
     option: traits.CommandOption[OptionT],
-) -> Callable[[_SlashCommand[Concatenate[OptionT, ParamS]]], _SlashCommand[ParamS]]:
+) -> Callable[[SlashCommand[Concatenate[OptionT, ParamS]]], SlashCommand[ParamS]]:
     """
     Add a option to a slash command.
 
@@ -459,8 +481,8 @@ def with_argument(
     """
 
     def decorator(
-        command: _SlashCommand[Concatenate[OptionT, ParamS]]
-    ) -> _SlashCommand[ParamS]:
+        command: SlashCommand[Concatenate[OptionT, ParamS]]
+    ) -> SlashCommand[ParamS]:
         command.options.append(option)
         return command  # type: ignore
 

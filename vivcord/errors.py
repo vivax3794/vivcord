@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ._internal_types import ErrorResponse
+    from vivcord._typed_dicts import ErrorResponse
 
 
 # https://discord.com/developers/docs/topics/opcodes-and-status-codes#http-http-response-codes

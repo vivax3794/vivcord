@@ -6,13 +6,13 @@ from typing import TYPE_CHECKING, TypeVar
 
 from loguru import logger
 
-from . import datatypes
+from vivcord import datatypes
 
 if TYPE_CHECKING:
     from typing import Any, Callable
 
-    from . import _internal_types as internal
-    from .client import Client
+    from vivcord import _typed_dicts as type_dicts
+    from vivcord.client import Client
 
 
 EventT = TypeVar("EventT", bound="Event")
@@ -112,7 +112,7 @@ class Event:
 class Hello(Event):
     """The gateway hello event."""
 
-    def __init__(self, client: Client, data: internal.HelloEventData) -> None:
+    def __init__(self, client: Client, data: type_dicts.HelloEventData) -> None:
         """
         Create hello event.
 
@@ -136,7 +136,7 @@ class HearthbeatACK(Event):
 class Ready(Event):
     """event sent when gateway is ready."""
 
-    def __init__(self, client: Client, data: internal.ReadyEventData) -> None:
+    def __init__(self, client: Client, data: type_dicts.ReadyEventData) -> None:
         """
         Create ready event.
 

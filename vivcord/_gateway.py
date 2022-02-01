@@ -11,18 +11,18 @@ from typing import TYPE_CHECKING, Generic, TypeVar
 
 from loguru import logger
 
-from . import events
-from ._constants import GATEWAY_VERSION
-from .events import event_map_manager
+from vivcord import events
+from vivcord._constants import GATEWAY_VERSION
+from vivcord.events import event_map_manager
 
 if TYPE_CHECKING:
     from typing import Any, TypeGuard
 
     import aiohttp
 
-    from . import datatypes
-    from ._internal_types import GatewayResponse
-    from .client import Client
+    from vivcord import datatypes
+    from vivcord._typed_dicts import GatewayResponse
+    from vivcord.client import Client
 
 EventT = TypeVar("EventT", bound=events.Event)
 
@@ -49,7 +49,7 @@ class _EventWaiter(Generic[EventT]):
             EventT: The event that happend.
 
         Raises:
-            ValueError: if the internal event is set without a value being provided.
+            ValueError: if the type_dicts event is set without a value being provided.
         """
         _ = await self._event.wait()
         if self._value is None:

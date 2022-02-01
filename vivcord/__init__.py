@@ -12,7 +12,7 @@ __all__ = [
     "SendMessageData",
 ]
 
-from . import commands, datatypes, errors, events, traits
-from .client import Client
-from .context import SlashCommandContext
-from .datatypes import Intents, SendMessageData
+from vivcord import commands, datatypes, errors, events, traits
+from vivcord.client import Client
+from vivcord.context import SlashCommandContext
+from vivcord.datatypes import Intents, SendMessageData

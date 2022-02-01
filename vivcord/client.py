@@ -8,17 +8,17 @@ from typing import TYPE_CHECKING, Any, Callable, Coroutine, TypeVar
 
 import aiohttp
 
-from . import context, events
-from ._api import Api
-from ._gateway import Gateway
-from .taskmanager import TaskManger
+from vivcord import context, events
+from vivcord._api import Api
+from vivcord._gateway import Gateway
+from vivcord.taskmanager import TaskManger
 
 if TYPE_CHECKING:
     from typing import TypeAlias
 
-    from . import _internal_types as internal
-    from . import datatypes, traits
-    from .datatypes import Snowflake
+    from vivcord import _typed_dicts as type_dicts
+    from vivcord import datatypes, traits
+    from vivcord.datatypes import Snowflake
 
 EventT = TypeVar("EventT", bound=events.Event)
 EventCallback: TypeAlias = Callable[[EventT], Coroutine[Any, Any, None]]
@@ -50,8 +50,8 @@ class Client:
 
     async def _register_commands(self) -> None:
         """Register all slash commnands with the api."""
-        global_commands: list[internal.CommandStructure] = []
-        guild_commands: dict[int, list[internal.CommandStructure]] = defaultdict(list)
+        global_commands: list[type_dicts.CommandStructure] = []
+        guild_commands: dict[int, list[type_dicts.CommandStructure]] = defaultdict(list)
 
         for command in self._commands.values():
             if command.guild_id is None:
@@ -119,7 +119,7 @@ class Client:
             self.api.application_id = event.application.id_
             await self._register_commands()
 
-        elif isinstance(event, context._ApplicationCommandContext):
+        elif isinstance(event, context.ApplicationCommandContext):
             await event.handle_interaction()
 
         tasks: list[Coroutine[Any, Any, None]] = [

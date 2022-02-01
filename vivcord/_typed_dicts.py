@@ -5,6 +5,8 @@ from typing import TYPE_CHECKING, Literal, TypedDict
 if TYPE_CHECKING:
     from typing import Any, TypeAlias
 
+    from typing_extensions import Required, NotRequired
+
 
 from loguru import logger
 
@@ -44,18 +46,13 @@ class ErrorResponse(TypedDict):
     message: str
 
 
-# https://discord.com/developers/docs/resources/user#user-object-user-structure
-class _UserDataBase(TypedDict):
-    """Base for user data from discord."""
-
-    id: int  # noqa: A003
-    username: str
-    discriminator: str
-    avatar: str | None
-
-
-class UserData(_UserDataBase, total=False):
+class UserData(TypedDict, total=False):
     """User data from discord."""
+
+    id: Required[int]  # noqa: A003
+    username: Required[str]
+    discriminator: Required[str]
+    avatar: Required[str | None]
 
     bot: bool
     system: bool
@@ -70,18 +67,13 @@ class UserData(_UserDataBase, total=False):
     public_flags: int
 
 
-# https://discord.com/developers/docs/resources/guild#guild-member-object
-class _MemberDataBase(TypedDict):
+class MemberData(TypedDict, total=False):
     """Member data from discord"""
 
-    roles: list[int]
-    joined_at: str
-    deaf: bool
-    mute: bool
-
-
-class MemberData(_MemberDataBase, total=False):
-    """Member data from discord"""
+    roles: Required[list[int]]
+    joined_at: Required[str]
+    deaf: Required[bool]
+    mute: Required[bool]
 
     user: UserData
     nick: str | None
@@ -100,7 +92,7 @@ class RoleTagData(TypedDict, total=False):
     premium_subscriber_: None
 
 
-class _RoleDataBase(TypedDict):
+class RoleData(TypedDict):
     """Role data from discord."""
 
     id: int
@@ -112,24 +104,16 @@ class _RoleDataBase(TypedDict):
     managed: bool
     mentionable: bool
 
-
-class RoleData(_RoleDataBase, total=False):
-    """Role data from discord."""
-
-    icon: str | None
-    unicode_emoji: str | None
-    tags: RoleTagData
+    icon: NotRequired[str | None]
+    unicode_emoji: NotRequired[str | None]
+    tags: NotRequired[RoleTagData]
 
 
-class _ChannelDataBase(TypedDict):
+class ChannelData(TypedDict, total=False):
     """Channel data from discord."""
 
-    id: int
-    type: int
-
-
-class ChannelData(_ChannelDataBase, total=False):
-    """Channel data from discord."""
+    id: Required[int]
+    type: Required[int]
 
     guild_id: int
     position: int
@@ -166,7 +150,7 @@ class PermissionOverwriteData(TypedDict):
     deny: str
 
 
-class _ThreadMetadataDataBase(TypedDict):
+class ThreadMetadataData(TypedDict):
     """Thread metadata from discord."""
 
     archived: bool
@@ -174,48 +158,36 @@ class _ThreadMetadataDataBase(TypedDict):
     archive_timestamp: str
     locked: bool
 
-
-class ThreadMetadataData(_ThreadMetadataDataBase, total=False):
-    """Thread metadata from discord."""
-
-    invitable: bool
+    invitable: NotRequired[bool]
 
 
-class _ThreadMemberDataBase(TypedDict):
+class ThreadMemberData(TypedDict, total=False):
     """Thread member data from discord."""
 
-    join_timestamp: str
-    flags: int
-
-
-class ThreadMemberData(_ThreadMemberDataBase, total=False):
-    """Thread member data from discord."""
+    join_timestamp: Required[str]
+    flags: Required[int]
 
     id: int
     user_id: int
 
 
-class _MessageDataBase(TypedDict):
+class MessageData(TypedDict, total=False):
     """Message data from discord."""
 
-    id: int
-    channel_id: int
-    author: UserData
-    content: str
-    timestamp: str
-    edited_timestamp: str | None
-    tts: bool
-    mention_everyone: bool
-    mentions: list[UserData]
-    mention_roles: list[int]
-    attachments: list[AttachmentData]
-    embeds: list[EmbedData]
-    pinned: bool
-    type: int
-
-
-class MessageData(_MessageDataBase, total=False):
-    """Message data from discord."""
+    id: Required[int]
+    channel_id: Required[int]
+    author: Required[UserData]
+    content: Required[str]
+    timestamp: Required[str]
+    edited_timestamp: Required[str | None]
+    tts: Required[bool]
+    mention_everyone: Required[bool]
+    mentions: Required[list[UserData]]
+    mention_roles: Required[list[int]]
+    attachments: Required[list[AttachmentData]]
+    embeds: Required[list[EmbedData]]
+    pinned: Required[bool]
+    type: Required[int]
 
     member: MemberData
     mention_channels: list[ChannelMentionData]
@@ -235,6 +207,10 @@ class MessageData(_MessageDataBase, total=False):
     stickers: list[StickerData]
 
 
+class SendMessageData(TypedDict, total=False):
+    content: str
+
+
 class ChannelMentionData(TypedDict):
     """Channel mention from discord."""
 
@@ -244,18 +220,14 @@ class ChannelMentionData(TypedDict):
     name: str
 
 
-class _AttachmentDataBase(TypedDict):
+class AttachmentData(TypedDict, total=False):
     """Attachment from discord."""
 
-    id: int
-    filename: str
-    size: int
-    url: str
-    proxy_url: str
-
-
-class AttachmentData(_AttachmentDataBase, total=False):
-    """Attachment from discord."""
+    id: Required[int]
+    filename: Required[str]
+    size: Required[int]
+    url: Required[str]
+    proxy_url: Required[str]
 
     description: str
     content_type: str
@@ -284,14 +256,10 @@ class EmbedData(TypedDict, total=False):
 
 
 # https://discord.com/developers/docs/resources/channel#embed-object-embed-thumbnail-structure
-class _EmbedThumbnailDataBase(TypedDict):
+class EmbedThumbnailData(TypedDict, total=False):
     """Embed thumbnail."""
 
-    url: str
-
-
-class EmbedThumbnailData(_EmbedThumbnailDataBase, total=False):
-    """Embed thumbnail."""
+    url: Required[str]
 
     proxy_url: str
     height: int
@@ -309,14 +277,10 @@ class EmbedVideoData(TypedDict, total=False):
 
 
 # https://discord.com/developers/docs/resources/channel#embed-object-embed-image-structure
-class _EmbedImageDataBase(TypedDict):
+class EmbedImageData(TypedDict, total=False):
     """Embed image."""
 
-    url: str
-
-
-class EmbedImageData(_EmbedImageDataBase, total=False):
-    """Embed image."""
+    url: Required[str]
 
     proxy_url: str
     height: int
@@ -332,14 +296,10 @@ class EmbedProviderData(TypedDict, total=False):
 
 
 # https://discord.com/developers/docs/resources/channel#embed-object-embed-author-structure
-class _EmbedAuthorDataBase(TypedDict):
+class EmbedAuthorData(TypedDict, total=False):
     """Embed Author"""
 
-    name: str
-
-
-class EmbedAuthorData(_EmbedAuthorDataBase, total=False):
-    """Embed Author"""
+    name: Required[str]
 
     url: str
     icon_url: str
@@ -347,31 +307,23 @@ class EmbedAuthorData(_EmbedAuthorDataBase, total=False):
 
 
 # https://discord.com/developers/docs/resources/channel#embed-object-embed-footer-structure
-class _EmbedFooterDataBase(TypedDict):
+class EmbedFooterData(TypedDict, total=False):
     """Embeed footer"""
 
-    text: str
-
-
-class EmbedFooterData(_EmbedFooterDataBase, total=False):
-    """Embeed footer"""
+    text: Required[str]
 
     icon_url: str
     proxy_icon_url: str
 
 
 # https://discord.com/developers/docs/resources/channel#embed-object-embed-field-structure
-class _EmbedFieldDataBase(TypedDict):
+class EmbedFieldData(TypedDict):
     """Embed field."""
 
     name: str
     value: str
 
-
-class EmbedFieldData(_EmbedFieldDataBase, total=False):
-    """Embed field."""
-
-    inline: bool
+    inline: NotRequired[bool]
 
 
 class ReactionData(TypedDict):
@@ -382,15 +334,11 @@ class ReactionData(TypedDict):
     emoji: EmojiData
 
 
-class _EmojiDataBase(TypedDict):
+class EmojiData(TypedDict):
     """Emoji data."""
 
-    id: int | None
-    name: str | None
-
-
-class EmojiData(_EmojiDataBase, total=False):
-    """Emoji data."""
+    id: Required[int | None]
+    name: Required[str | None]
 
     roles: list[int]
     user: UserData
@@ -400,16 +348,11 @@ class EmojiData(_EmojiDataBase, total=False):
     available: bool
 
 
-class _MessageActivityDataBase(TypedDict):
+class MessageActivityData(TypedDict):
     """Message activity."""
 
     type: int
-
-
-class MessageActivityData(_MessageActivityDataBase, total=False):
-    """Message activity."""
-
-    party_id: str
+    party_id: NotRequired[str]
 
 
 class MessageReferenceData(TypedDict, total=False):
@@ -431,14 +374,10 @@ class MessageInteractionData(TypedDict):
 
 
 # https://discord.com/developers/docs/interactions/message-components#component-object-component-structure
-class _ComponentDataBase(TypedDict):
+class ComponentData(TypedDict, total=False):
     """Discord component data."""
 
-    type: int
-
-
-class ComponentData(_ComponentDataBase, total=False):
-    """Discord component data."""
+    type: Required[int]
 
     custom_id: str
     disabled: bool
@@ -454,15 +393,11 @@ class ComponentData(_ComponentDataBase, total=False):
 
 
 # https://discord.com/developers/docs/interactions/message-components#select-menu-object-select-option-structure
-class _SelectOptionDataBase(TypedDict):
+class SelectOptionData(TypedDict, total=False):
     """Select option."""
 
-    label: str
-    value: str
-
-
-class SelectOptionData(_SelectOptionDataBase, total=False):
-    """Select option."""
+    label: Required[str]
+    value: Required[str]
 
     description: str
     emoji: EmojiData
@@ -478,20 +413,16 @@ class StickerItemData(TypedDict):
 
 
 # https://discord.com/developers/docs/resources/sticker#sticker-object-sticker-structure
-class _StickerDataBase(TypedDict):
+class StickerData(TypedDict, total=False):
     """Sticker data."""
 
-    id: int
-    name: str
-    description: str | None
-    tags: str
-    asset: Literal[""]
-    type: int
-    format_type: int
-
-
-class StickerData(_StickerDataBase, total=False):
-    """Sticker data."""
+    id: Required[int]
+    name: Required[str]
+    description: Required[str | None]
+    tags: Required[str]
+    asset: Required[Literal[""]]
+    type: Required[int]
+    format_type: Required[int]
 
     pack_id: int
     available: bool
@@ -501,40 +432,36 @@ class StickerData(_StickerDataBase, total=False):
 
 
 # https://discord.com/developers/docs/resources/guild#guild-object-guild-structure
-class _GuildDataBase(TypedDict):
+class GuildData(TypedDict, total=False):
     """Discord server (guild)."""
 
-    id: int
-    name: str
-    icon: str | None
-    splash: str | None
-    discovery_splash: str | None
-    owner_id: int
-    afk_channel_id: int | None
-    afk_timeout: int
-    verification_level: int
-    default_message_notifications: int
-    explicit_content_filter: int
-    roles: list[RoleData]
-    emojis: list[EmojiData]
-    features: list[str]
-    mfa_level: int
-    application_id: int | None
-    system_channel_id: int | None
-    system_channel_flags: int
-    rules_channel_id: int | None
-    vanity_url_code: str | None
-    description: str | None
-    banner: str | None
-    premium_tier: int
-    preferred_locale: str
-    public_updates_channel_id: int | None
-    nsfw_level: int
-    premium_progress_bar_enabled: bool
-
-
-class GuildData(_GuildDataBase, total=False):
-    """Discord server (guild)."""
+    id: Required[int]
+    name: Required[str]
+    icon: Required[str | None]
+    splash: Required[str | None]
+    discovery_splash: Required[str | None]
+    owner_id: Required[int]
+    afk_channel_id: Required[int | None]
+    afk_timeout: Required[int]
+    verification_level: Required[int]
+    default_message_notifications: Required[int]
+    explicit_content_filter: Required[int]
+    roles: Required[list[RoleData]]
+    emojis: Required[list[EmojiData]]
+    features: Required[list[str]]
+    mfa_level: Required[int]
+    application_id: Required[int | None]
+    system_channel_id: Required[int | None]
+    system_channel_flags: Required[int]
+    rules_channel_id: Required[int | None]
+    vanity_url_code: Required[str | None]
+    description: Required[str | None]
+    banner: Required[str | None]
+    premium_tier: Required[int]
+    preferred_locale: Required[str]
+    public_updates_channel_id: Required[int | None]
+    nsfw_level: Required[int]
+    premium_progress_bar_enabled: Required[bool]
 
     icon_hash: str | None
     owner: bool
@@ -563,7 +490,7 @@ class GuildData(_GuildDataBase, total=False):
 
 
 # https://discord.com/developers/docs/resources/voice#voice-state-object-voice-state-structure
-class _VoiceStateDataBase(TypedDict):
+class VoiceStateData(TypedDict):
     """Voice state."""
 
     channel_id: int | None
@@ -577,12 +504,8 @@ class _VoiceStateDataBase(TypedDict):
     suppres: bool
     request_to_speak_timestamp: str | None
 
-
-class VoiceStateData(_VoiceStateDataBase, total=False):
-    """Voice state."""
-
-    guild_id: int
-    member: MemberData
+    guild_id: NotRequired[int]
+    member: NotRequired[MemberData]
 
 
 # https://discord.com/developers/docs/topics/gateway#presence-update-presence-update-event-fields
@@ -597,16 +520,12 @@ class PresenceUpdateData(TypedDict):
 
 
 # https://discord.com/developers/docs/topics/gateway#activity-object-activity-structure
-class _ActivityDataBase(TypedDict):
+class ActivityData(TypedDict, total=False):
     """Activity."""
 
-    name: str
-    type: int
-    created_at: int
-
-
-class ActivityData(_ActivityDataBase, total=False):
-    """Activity."""
+    name: Required[str]
+    type: Required[int]
+    created_at: Required[int]
 
     url: str | None
     timestamps: list[TimestampData]
@@ -688,7 +607,7 @@ class StageInstanceData(TypedDict):
     discoverable_disabled: bool
 
 
-class _GuildScheduledEventDataBase(TypedDict):
+class GuildScheduledEventData(TypedDict):
     """Guild scheduled event."""
 
     id: int
@@ -704,13 +623,9 @@ class _GuildScheduledEventDataBase(TypedDict):
     entity_id: int | None
     entity_metadata: EntityMetadata | None
 
-
-class GuildScheduledEventData(_GuildScheduledEventDataBase, total=False):
-    """Guild scheduled event."""
-
-    description: str
-    creator: UserData
-    user_count: int
+    description: NotRequired[str]
+    creator: NotRequired[UserData]
+    user_count: NotRequired[int]
 
 
 class EntityMetadata(TypedDict, total=False):
@@ -729,16 +644,11 @@ class GatewayResponse(TypedDict):
     t: str | None
 
 
-class _ApplicationDataBase(TypedDict):
+class ApplicationData(TypedDict):
     """Data about he bots application."""
 
     id: int  # noqa: A003
-
-
-class ApplicationData(_ApplicationDataBase, total=False):
-    """Data about he bots application."""
-
-    owner: UserData
+    owner: NotRequired[UserData]
 
 
 # https://discord.com/developers/docs/topics/gateway#hello-hello-structure
@@ -760,15 +670,11 @@ class ReadyEventData(TypedDict):
 
 
 # https://discord.com/developers/docs/interactions/application-commands#application-command-object
-class _CommandStructureBase(TypedDict):
+class CommandStructure(TypedDict, total=False):
     """Application command structure."""
 
-    name: str
-    description: str
-
-
-class CommandStructure(_CommandStructureBase, total=False):
-    """Application command structure."""
+    name: Required[str]
+    description: Required[str]
 
     type: int  # noqa: A003
     options: list[CommandOption]
@@ -776,16 +682,12 @@ class CommandStructure(_CommandStructureBase, total=False):
 
 
 # https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-option-structure
-class _CommandOptionBase(TypedDict):
+class CommandOption(TypedDict, total=False):
     """Slash command options."""
 
-    type: int  # noqa: A003
-    name: str
-    description: str
-
-
-class CommandOption(_CommandOptionBase, total=False):
-    """Slash command options."""
+    type: Required[int]  # noqa: A003
+    name: Required[str]
+    description: Required[str]
 
     required: bool
     choices: list[CommandChoice]
@@ -804,18 +706,14 @@ class CommandChoice(TypedDict):
     value: str | int | float
 
 
-class _InteractionEventDataBase(TypedDict):
+class InteractionEventData(TypedDict, total=False):
     """Interaction Event Data."""
 
-    id: int  # noqa: A003
-    application_id: int
-    type: int
-    token: str
-    version: Literal[1]
-
-
-class InteractionEventData(_InteractionEventDataBase, total=False):
-    """Interaction Event Data."""
+    id: Required[int]  # noqa: A003
+    application_id: Required[int]
+    type: Required[int]
+    token: Required[str]
+    version: Required[Literal[1]]
 
     data: InteractionData
     guild_id: int
@@ -825,16 +723,12 @@ class InteractionEventData(_InteractionEventDataBase, total=False):
     message: MessageData
 
 
-class _InteractionDataBase(TypedDict):
+class InteractionData(TypedDict, total=False):
     """Interaction Data."""
 
-    id: str  # noqa: A003
-    name: str
-    type: int
-
-
-class InteractionData(_InteractionDataBase, total=False):
-    """Interaction Data."""
+    id: Required[str]  # noqa: A003
+    name: Required[str]
+    type: Required[int]
 
     resolved: ResolvedData
     options: list[CommandOptionResult]
@@ -854,15 +748,11 @@ class ResolvedData(TypedDict, total=False):
     messages: dict[int, MessageData]
 
 
-class _CommandOptionResultBase(TypedDict):
+class CommandOptionResult(TypedDict, total=False):
     """Options select in interaction."""
 
-    name: str
-    type: int
-
-
-class CommandOptionResult(_CommandOptionResultBase, total=False):
-    """Options select in interaction."""
+    name: Required[str]
+    type: Required[int]
 
     value: str | int | float
     focused: bool
