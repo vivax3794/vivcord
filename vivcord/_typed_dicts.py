@@ -1,24 +1,11 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Literal, TypedDict
+from typing import TYPE_CHECKING, TypedDict
 
 if TYPE_CHECKING:
-    from typing import Any, TypeAlias
+    from typing import Any, Literal, TypeAlias
 
-    from typing_extensions import Required, NotRequired
-
-
-from loguru import logger
-
-
-class ToBeImplemented:
-    """Not yet implemented attr."""
-
-    def __init__(self) -> None:
-        logger.warning("Not yet implemented.")
-
-    def __str__(self) -> str:
-        return "ToBeImplemented()"
+    from typing_extensions import NotRequired, Required
 
 
 # https://discord.com/developers/docs/reference#error-messages
@@ -68,7 +55,7 @@ class UserData(TypedDict, total=False):
 
 
 class MemberData(TypedDict, total=False):
-    """Member data from discord"""
+    """Member data from discord."""
 
     roles: Required[list[int]]
     joined_at: Required[str]
@@ -95,7 +82,7 @@ class RoleTagData(TypedDict, total=False):
 class RoleData(TypedDict):
     """Role data from discord."""
 
-    id: int
+    id: int  # noqa: A003
     name: str
     color: int
     hoist: bool
@@ -112,8 +99,8 @@ class RoleData(TypedDict):
 class ChannelData(TypedDict, total=False):
     """Channel data from discord."""
 
-    id: Required[int]
-    type: Required[int]
+    id: Required[int]  # noqa: A003
+    type: Required[int]  # noqa: A003
 
     guild_id: int
     position: int
@@ -144,8 +131,8 @@ class ChannelData(TypedDict, total=False):
 class PermissionOverwriteData(TypedDict):
     """Permission overwrites from discord."""
 
-    id: int
-    type: int
+    id: int  # noqa: A003
+    type: int  # noqa: A003
     allow: str
     deny: str
 
@@ -167,14 +154,14 @@ class ThreadMemberData(TypedDict, total=False):
     join_timestamp: Required[str]
     flags: Required[int]
 
-    id: int
+    id: int  # noqa: A003
     user_id: int
 
 
 class MessageData(TypedDict, total=False):
     """Message data from discord."""
 
-    id: Required[int]
+    id: Required[int]  # noqa: A003
     channel_id: Required[int]
     author: Required[UserData]
     content: Required[str]
@@ -187,7 +174,7 @@ class MessageData(TypedDict, total=False):
     attachments: Required[list[AttachmentData]]
     embeds: Required[list[EmbedData]]
     pinned: Required[bool]
-    type: Required[int]
+    type: Required[int]  # noqa: A003
 
     member: MemberData
     mention_channels: list[ChannelMentionData]
@@ -208,22 +195,25 @@ class MessageData(TypedDict, total=False):
 
 
 class SendMessageData(TypedDict, total=False):
+    """Data that can be sent to discord when creating a message."""
+
     content: str
+    embed: EmbedData
 
 
 class ChannelMentionData(TypedDict):
     """Channel mention from discord."""
 
-    id: int
+    id: int  # noqa: A003
     guild_id: int
-    type: int
+    type: int  # noqa: A003
     name: str
 
 
 class AttachmentData(TypedDict, total=False):
     """Attachment from discord."""
 
-    id: Required[int]
+    id: Required[int]  # noqa: A003
     filename: Required[str]
     size: Required[int]
     url: Required[str]
@@ -241,7 +231,7 @@ class EmbedData(TypedDict, total=False):
     """Embed data."""
 
     title: str
-    type: str
+    type: str  # noqa: A003
     description: str
     url: str
     timestamp: str
@@ -297,7 +287,7 @@ class EmbedProviderData(TypedDict, total=False):
 
 # https://discord.com/developers/docs/resources/channel#embed-object-embed-author-structure
 class EmbedAuthorData(TypedDict, total=False):
-    """Embed Author"""
+    """Embed Author."""
 
     name: Required[str]
 
@@ -308,7 +298,7 @@ class EmbedAuthorData(TypedDict, total=False):
 
 # https://discord.com/developers/docs/resources/channel#embed-object-embed-footer-structure
 class EmbedFooterData(TypedDict, total=False):
-    """Embeed footer"""
+    """Embeed footer."""
 
     text: Required[str]
 
@@ -337,7 +327,7 @@ class ReactionData(TypedDict):
 class EmojiData(TypedDict):
     """Emoji data."""
 
-    id: Required[int | None]
+    id: Required[int | None]  # noqa: A003
     name: Required[str | None]
 
     roles: list[int]
@@ -351,7 +341,7 @@ class EmojiData(TypedDict):
 class MessageActivityData(TypedDict):
     """Message activity."""
 
-    type: int
+    type: int  # noqa: A003
     party_id: NotRequired[str]
 
 
@@ -367,8 +357,8 @@ class MessageReferenceData(TypedDict, total=False):
 class MessageInteractionData(TypedDict):
     """Message Interaction."""
 
-    id: int
-    type: int
+    id: int  # noqa: A003
+    type: int  # noqa: A003
     name: str
     user: UserData
 
@@ -377,7 +367,7 @@ class MessageInteractionData(TypedDict):
 class ComponentData(TypedDict, total=False):
     """Discord component data."""
 
-    type: Required[int]
+    type: Required[int]  # noqa: A003
 
     custom_id: str
     disabled: bool
@@ -406,8 +396,9 @@ class SelectOptionData(TypedDict, total=False):
 
 # https://discord.com/developers/docs/resources/sticker#sticker-item-object-sticker-item-structure
 class StickerItemData(TypedDict):
-    "Sticker item."
-    id: int
+    """Sticker item."""
+
+    id: int  # noqa: A003
     name: str
     format_type: int
 
@@ -416,12 +407,12 @@ class StickerItemData(TypedDict):
 class StickerData(TypedDict, total=False):
     """Sticker data."""
 
-    id: Required[int]
+    id: Required[int]  # noqa: A003
     name: Required[str]
     description: Required[str | None]
     tags: Required[str]
     asset: Required[Literal[""]]
-    type: Required[int]
+    type: Required[int]  # noqa: A003
     format_type: Required[int]
 
     pack_id: int
@@ -435,7 +426,7 @@ class StickerData(TypedDict, total=False):
 class GuildData(TypedDict, total=False):
     """Discord server (guild)."""
 
-    id: Required[int]
+    id: Required[int]  # noqa: A003
     name: Required[str]
     icon: Required[str | None]
     splash: Required[str | None]
@@ -524,7 +515,7 @@ class ActivityData(TypedDict, total=False):
     """Activity."""
 
     name: Required[str]
-    type: Required[int]
+    type: Required[int]  # noqa: A003
     created_at: Required[int]
 
     url: str | None
@@ -551,7 +542,7 @@ class TimestampData(TypedDict, total=False):
 class PartyData(TypedDict, total=False):
     """Activity part."""
 
-    id: str
+    id: str  # noqa: A003
     size: list[int]
 
 
@@ -599,7 +590,7 @@ class WelcomeChannelData(TypedDict):
 class StageInstanceData(TypedDict):
     """Stage instance."""
 
-    id: int
+    id: int  # noqa: A003
     guild_id: int
     channel_id: int
     topic: str
@@ -610,7 +601,7 @@ class StageInstanceData(TypedDict):
 class GuildScheduledEventData(TypedDict):
     """Guild scheduled event."""
 
-    id: int
+    id: int  # noqa: A003
     guild_id: int
     channel_id: int | None
     creator_id: int | None
@@ -711,7 +702,7 @@ class InteractionEventData(TypedDict, total=False):
 
     id: Required[int]  # noqa: A003
     application_id: Required[int]
-    type: Required[int]
+    type: Required[int]  # noqa: A003
     token: Required[str]
     version: Required[Literal[1]]
 
@@ -728,7 +719,7 @@ class InteractionData(TypedDict, total=False):
 
     id: Required[str]  # noqa: A003
     name: Required[str]
-    type: Required[int]
+    type: Required[int]  # noqa: A003
 
     resolved: ResolvedData
     options: list[CommandOptionResult]
@@ -752,7 +743,7 @@ class CommandOptionResult(TypedDict, total=False):
     """Options select in interaction."""
 
     name: Required[str]
-    type: Required[int]
+    type: Required[int]  # noqa: A003
 
     value: str | int | float
     focused: bool

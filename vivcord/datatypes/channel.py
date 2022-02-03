@@ -1,3 +1,5 @@
+"""Discord channels."""
+
 from __future__ import annotations
 
 from datetime import datetime
@@ -7,6 +9,7 @@ from typing import TYPE_CHECKING
 from loguru import logger
 
 from vivcord import helpers
+from vivcord.datatypes.not_implemented import ToBeImplemented
 from vivcord.datatypes.permission import Permission
 from vivcord.datatypes.snowflake import Snowflake
 from vivcord.datatypes.user import User
@@ -36,7 +39,13 @@ class Channel:
     """Discord channel."""
 
     def __init__(self, client: Client, data: type_dicts.ChannelData) -> None:
-        """Construct channel instace."""
+        """
+        Construct channel instance.
+
+        Args:
+            client (Client): Vivcord client
+            data (type_dicts.ChannelData): channel json data
+        """
         self._client = client
         self._raw_data = data
 
@@ -45,19 +54,31 @@ class Channel:
 
     @staticmethod
     def parse_channel(client: Client, data: type_dicts.ChannelData) -> Channel:
-        """Parse channel."""
+        """
+        Create channel from data.
+
+        Args:
+            client (Client): Vivcord client
+            data (type_dicts.ChannelData): channel json
+
+        Raises:
+            ValueError: Unknown channel type
+
+        Returns:
+            Channel: Parsed channel
+        """
         logger.debug(f"creating channel with data: {data!r}")
         match data["type"]:
             case 0:
-                return GuildTextChannel(client, data)
+                channel_type = GuildTextChannel
             case 1:
-                return DMChannel(client, data)
+                channel_type = DMChannel
             case 2:
-                return GuildVoiceChannel(client, data)
+                channel_type = GuildVoiceChannel
             case 3:
-                return GroupDMChannel(client, data)
+                channel_type = GroupDMChannel
             case 4:
-                return GuildCategoryChannel(client, data)
+                channel_type = GuildCategoryChannel
             # TODO: parse more channel types.
             # case 5:
             #     return GuildNewsChannel(client, data)
@@ -74,12 +95,20 @@ class Channel:
             case _:
                 raise ValueError(f"Unknown channel type: {data['type']}")
 
+        return channel_type(client, data)
+
 
 class TextChannel(Channel):
     """A channel that handels text."""
 
     def __init__(self, client: Client, data: type_dicts.ChannelData) -> None:
-        """Construct a text channel."""
+        """
+        Construct text channel instance.
+
+        Args:
+            client (Client): Vivcord client
+            data (type_dicts.ChannelData): channel json data
+        """
         super().__init__(client, data)
 
         last_message_id = data.get("last_message_id")
@@ -99,14 +128,20 @@ class GuildChannel(Channel):
     """Channel in a guild."""
 
     def __init__(self, client: Client, data: type_dicts.ChannelData) -> None:
-        """Construct a guild channel."""
+        """
+        Construct guild channel instance.
+
+        Args:
+            client (Client): Vivcord client
+            data (type_dicts.ChannelData): channel json data
+        """
         super().__init__(client, data)
 
         guild_id = helpers.check_expected_value(data.get("guild_id"), 0)
         self.guild_id = Snowflake(guild_id)
 
         self.position = helpers.check_expected_value(data.get("position"), -1)
-        self.permission_overwrites = type_dicts.ToBeImplemented()
+        self.permission_overwrites = ToBeImplemented()
         self.name = helpers.check_expected_value(data.get("name"), "")
 
         perms = data.get("permissions")
@@ -123,7 +158,13 @@ class GuildNonGroup(GuildChannel):
     """A guild channel that is not the group type."""
 
     def __init__(self, client: Client, data: type_dicts.ChannelData) -> None:
-        """Construct a guild channel."""
+        """
+        Construct guild non group channel instance.
+
+        Args:
+            client (Client): Vivcord client
+            data (type_dicts.ChannelData): channel json data
+        """
         super().__init__(client, data)
 
         parent_id = helpers.check_expected_value(data.get("parent_id"), 0)
@@ -134,7 +175,13 @@ class GuildTextChannel(TextChannel, GuildNonGroup):
     """A guild text channel."""
 
     def __init__(self, client: Client, data: type_dicts.ChannelData) -> None:
-        """Construct a guild text channel."""
+        """
+        Construct guild text channel instance.
+
+        Args:
+            client (Client): Vivcord client
+            data (type_dicts.ChannelData): channel json data
+        """
         super().__init__(client, data)
 
         self.topic = helpers.check_expected_value(data.get("topic"), "")
@@ -146,7 +193,16 @@ class GuildTextChannel(TextChannel, GuildNonGroup):
 
 
 class GuildVoiceChannel(GuildNonGroup):
+    """Voice channel."""
+
     def __init__(self, client: Client, data: type_dicts.ChannelData) -> None:
+        """
+        Construct guild voice channel instance.
+
+        Args:
+            client (Client): Vivcord client
+            data (type_dicts.ChannelData): channel json data
+        """
         super().__init__(client, data)
 
         self.bitrate = helpers.check_expected_value(data.get("bitrate"), 0)
@@ -158,10 +214,16 @@ class GuildVoiceChannel(GuildNonGroup):
 
 
 class DMChannel(TextChannel):
-    "A dm."
+    """A dm."""
 
     def __init__(self, client: Client, data: type_dicts.ChannelData) -> None:
-        "Construct dm channel."
+        """
+        Construct dm channel instance.
+
+        Args:
+            client (Client): Vivcord client
+            data (type_dicts.ChannelData): channel json data
+        """
         super().__init__(client, data)
 
         recps = helpers.check_expected_value(data.get("recipients"), None)
@@ -175,6 +237,13 @@ class GroupDMChannel(DMChannel):
     """A dm with multiple people."""
 
     def __init__(self, client: Client, data: type_dicts.ChannelData) -> None:
+        """
+        Construct group dm channel instance.
+
+        Args:
+            client (Client): Vivcord client
+            data (type_dicts.ChannelData): channel json data
+        """
         super().__init__(client, data)
 
         self.owner_id = helpers.check_expected_value(data.get("owner_id"), 0)

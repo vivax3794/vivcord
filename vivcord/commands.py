@@ -47,7 +47,7 @@ class SlashCommand(Generic[ParamS]):
         func: CommandCallback[ParamS],
     ) -> None:
         """
-        Create slash command
+        Create slash command.
 
         Args:
             name (str): Name of the command

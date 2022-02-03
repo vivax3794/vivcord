@@ -1,8 +1,16 @@
+"""Discord permissions."""
+
+
 class Permission:
     """Discord permissions."""
 
     def __init__(self, permissions_int: int) -> None:
-        """Parse individual permissions out of the permissions int."""
+        """
+        Parse individual permissions out of the permissions int.
+
+        Args:
+            permissions_int (int): permissions number
+        """
         self.create_instant_invite = (permissions_int & (2 ^ 0)) != 0
         self.kick_members = (permissions_int & (2 ^ 1)) != 0
         self.ban_members = (permissions_int & (2 ^ 2)) != 0
@@ -46,7 +54,12 @@ class Permission:
         self.moderate_members = (permissions_int & (2 ^ 40)) != 0
 
     def calculate_value(self) -> int:
-        """Convert back to int."""
+        """
+        Convert back to int.
+
+        Returns:
+            int: the calculated permission number
+        """
         value = 0
         value |= self.create_instant_invite << 0
         value |= self.kick_members << 1

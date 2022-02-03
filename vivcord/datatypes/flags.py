@@ -1,3 +1,6 @@
+"""Flags to set specific settings on objects."""
+
+
 class UserFlags:
     """Discord user flags."""
 

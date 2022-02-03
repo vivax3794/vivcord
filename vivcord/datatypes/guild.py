@@ -1,2 +1,7 @@
+"""Discord server."""
+
+
 class Guild:
-    pass
+    """Discord server."""
+
+    # TODO: this

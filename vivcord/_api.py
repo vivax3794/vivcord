@@ -4,13 +4,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-import aiohttp
 from loguru import logger
 
 from vivcord import errors
 from vivcord._constants import BASE_URL
 
 if TYPE_CHECKING:
+    import aiohttp
+
     from vivcord import _typed_dicts as type_dicts
     from vivcord import datatypes
 
@@ -127,6 +128,14 @@ class Api:
     async def respond_to_interaction(
         self, int_id: int, int_token: str, data: dict[str, object]
     ) -> None:
+        """
+        Respond to interaction gotten from the gateway.
+
+        Args:
+            int_id (int): The interactions id
+            int_token (str): The interaction token
+            data (dict[str, object]): Data to respond with
+        """
         logger.debug(f"responding to interaction {int_id}")
 
         async with self.session.post(

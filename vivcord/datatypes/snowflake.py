@@ -1,9 +1,12 @@
+"""Snowflakes are like fancy ids that contain info."""
+
 from __future__ import annotations
 
 from datetime import datetime
 
 # https://discord.com/developers/docs/reference#convert-snowflake-to-datetime
 DISCORD_EPOCH = 1420070400000
+
 
 # https://discord.com/developers/docs/reference#snowflakes
 class Snowflake:

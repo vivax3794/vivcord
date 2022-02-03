@@ -27,7 +27,7 @@ class ApplicationCommand(Protocol):
         Returns:
             type_dicts.CommandStructure: The resulting dict
         """
-        ...
+        return NotImplemented
 
 
 class CommandOption(ABC, Generic[T]):
@@ -56,6 +56,13 @@ class CommandOption(ABC, Generic[T]):
 
 
 class Messageable(ABC):
+    """This object can have messages sent to it."""
+
     @abstractmethod
     async def send(self, data: datatypes.SendMessageData) -> None:
-        ...
+        """
+        Send message to this object.
+
+        Args:
+            data (datatypes.SendMessageData): Message data to send.
+        """

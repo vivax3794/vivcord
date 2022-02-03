@@ -161,10 +161,25 @@ class Client:
         return decorator
 
     def register_command(self, command: traits.ApplicationCommand) -> None:
+        """
+        Add command to bot.
+
+        Args:
+            command (traits.ApplicationCommand): Command to add.
+        """
         if command.guild_id is None:
             command.guild_id = self.default_guild_id
 
         self._commands[command.name] = command
 
     def get_command(self, name: str) -> traits.ApplicationCommand | None:
+        """
+        Get command by name.
+
+        Args:
+            name (str): Name of command to find
+
+        Returns:
+            traits.ApplicationCommand | None: commnad, or None if not found.
+        """
         return self._commands.get(name)

@@ -1,3 +1,5 @@
+"""Embeds allows you to create nicer messages."""
+
 from __future__ import annotations
 
 from datetime import datetime
@@ -21,6 +23,19 @@ class Embed:
         image: EmbedImage | None = None,
         thumbnail: EmbedThumbnail | None = None,
     ) -> None:
+        """
+        Create embed.
+
+        Args:
+            title (str, optional): embed title. Defaults to None.
+            description (str, optional): embed description. Defaults to None.
+            url (str, optional): embed linked url. Defaults to None.
+            timestamp (datetime, optional): embed timestamp. Defaults to None.
+            color (int, optional): embed color. Defaults to None.
+            footer (EmbedFooter, optional): embed. Defaults to None.
+            image (EmbedImage, optional): embed image. Defaults to None.
+            thumbnail (EmbedThumbnail, optional): embed thumbnail. Defaults to None.
+        """
         self.title = title
         self.description = description
         self.url = url
@@ -32,7 +47,7 @@ class Embed:
 
     def set_footer(self, text: str, icon_url: str | None = None) -> None:
         """
-        Set embed footer
+        Set embed footer.
 
         Args:
             text (str): Text for footer
@@ -104,9 +119,7 @@ class EmbedFooter:
         Args:
             text (str): Footer text
             icon_url (str, optional): Footer icon. Defaults to None.
-            proxy_icon_url (str, optional): Footer proxy url. Defaults to None.
         """
-
         self.text = text
         self.icon_url = icon_url
 
@@ -154,29 +167,40 @@ class EmbedImage:
             height (int): img height
             width (int): img width
         """
-
         self.url = url
         self.width = width
         self.height = height
-    
+
     @classmethod
     def from_json(cls, data: type_dicts.EmbedImageData) -> EmbedImage:
-        return cls(
-            data["url"],
-            data.get("width"),
-            data.get("height")
-        )
-    
+        """
+        Create EmbedImage from json data.
+
+        Args:
+            data (type_dicts.EmbedImageData): Json data
+
+        Returns:
+            EmbedImage: Image created from json
+        """
+        return cls(data["url"], data.get("width"), data.get("height"))
+
     def to_json(self) -> type_dicts.EmbedImageData:
+        """
+        Convert img to json.
+
+        Returns:
+            type_dicts.EmbedImageData: Created json
+        """
         data: type_dicts.EmbedImageData = {"url": self.url}
 
         if self.height is not None:
             data["height"] = self.height
         if self.width is not None:
             data["width"] = self.width
-        
+
         return data
-    
+
+
 class EmbedThumbnail:
     """Embed thumbnail."""
 
@@ -191,25 +215,35 @@ class EmbedThumbnail:
             height (int): img height
             width (int): img width
         """
-
         self.url = url
         self.width = width
         self.height = height
-    
+
     @classmethod
     def from_json(cls, data: type_dicts.EmbedThumbnailData) -> EmbedThumbnail:
-        return cls(
-            data["url"],
-            data.get("width"),
-            data.get("height")
-        )
-    
+        """
+        Create EmbedThumbnail from json data.
+
+        Args:
+            data (type_dicts.EmbedThumbnailData): Json data
+
+        Returns:
+            EmbedThumbnail: Thumbnail created from json
+        """
+        return cls(data["url"], data.get("width"), data.get("height"))
+
     def to_json(self) -> type_dicts.EmbedThumbnailData:
+        """
+        Convert thumbnail to json.
+
+        Returns:
+            type_dicts.EmbedThumbnailData: Created json
+        """
         data: type_dicts.EmbedThumbnailData = {"url": self.url}
 
         if self.height is not None:
             data["height"] = self.height
         if self.width is not None:
             data["width"] = self.width
-        
+
         return data

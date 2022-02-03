@@ -1,3 +1,5 @@
+"""Intents detail what events you want to get from discord."""
+
 from dataclasses import dataclass
 
 

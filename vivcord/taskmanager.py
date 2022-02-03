@@ -30,7 +30,6 @@ class TaskManger:
         Args:
             task (asyncio.Task[None]): Task to manage.
         """
-        # logger.debug(f"adding task {task}")
         # https://github.com/microsoft/pyright/issues/2721
         if asyncio.iscoroutine(task):
             task = asyncio.create_task(task)
@@ -51,7 +50,6 @@ class TaskManger:
 
             for task in complete:
                 self._tasks.remove(task)
-                # logger.debug(f"task done, awaiting {task}")
                 await task
 
     async def close(self):

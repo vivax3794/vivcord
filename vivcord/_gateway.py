@@ -1,7 +1,4 @@
 """Handle events from the discord gateway."""
-
-# TODO: Support for resuming sessions
-
 from __future__ import annotations
 
 import asyncio
@@ -129,7 +126,6 @@ class Gateway:
         """
         waiter = _EventWaiter(event_type)
         self._waiters.append(waiter)
-        # logger.debug(f"waiting for {event_type}")
         return await waiter.wait()
 
     async def start(self, url: str, oauth: str, intents: datatypes.Intents) -> None:

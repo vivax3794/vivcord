@@ -1,3 +1,5 @@
+"""Discord users."""
+
 from __future__ import annotations
 
 from datetime import datetime
@@ -67,7 +69,13 @@ class Member:
     """Discord member."""
 
     def __init__(self, client: Client, data: type_dicts.MemberData) -> None:
-        """Construct guild instance."""
+        """
+        Construct member instace.
+
+        Args:
+            client (Client): Vivcord client
+            data (type_dicts.MemberData): json data
+        """
         self._client = client
         self._raw_data = data
 

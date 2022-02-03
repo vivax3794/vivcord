@@ -1,3 +1,5 @@
+"""Command context objects for responding to interactions."""
+
 from __future__ import annotations
 
 import typing
@@ -16,6 +18,8 @@ if TYPE_CHECKING:
 
 
 class InteractionType(IntEnum):
+    """The type of interaction."""
+
     ping = 1
     application_command = 2
     message_component = 3
@@ -23,6 +27,8 @@ class InteractionType(IntEnum):
 
 
 class ApplicationCommandType(IntEnum):
+    """The type of command."""
+
     slash_command = 1
     user = 2
     message = 3
@@ -40,9 +46,17 @@ OPTION_VALS: TypeAlias = (
 )
 
 
-# TODO: class _InteractionContext(traits.Messageable):
 class _InteractionContext(events.Event):
+    """A general interaction context."""
+
     def __init__(self, client: Client, data: type_dicts.InteractionEventData) -> None:
+        """
+        Create a general interaction context.
+
+        Args:
+            client (Client): Vivcord client
+            data (type_dicts.InteractionEventData): Interaction event data
+        """
         self._client = client
 
         self.type = InteractionType(data["type"])
@@ -57,11 +71,31 @@ class _InteractionContext(events.Event):
         self.user = datatypes.User(client, data["user"]) if "user" in data else None
 
     async def handle_interaction(self) -> None:
+        """
+        Handle the interaction.
+
+        This should be overwritten by subclasses to provided command specific actions.
+
+        Raises:
+            NotImplementedError: Should be implemented by subclass.
+        """
         raise NotImplementedError()
 
 
 class ApplicationCommandContext(_InteractionContext):
+    """Interaction context for a application command."""
+
     def __init__(self, client: Client, data: type_dicts.InteractionEventData) -> None:
+        """
+        Create a application command interaction context.
+
+        Args:
+            client (Client): Vivcord client
+            data (type_dicts.InteractionEventData): Interaction event data
+
+        Raises:
+            ValueError: interaction data missing
+        """
         super().__init__(client, data)
 
         int_data = data.get("data")
@@ -75,13 +109,31 @@ class ApplicationCommandContext(_InteractionContext):
         )
 
     async def send(self, data: datatypes.SendMessageData) -> None:
+        """
+        Send response to interaction.
+
+        Args:
+            data (datatypes.SendMessageData): Response data to use.
+        """
         await self._client.api.respond_to_interaction(
             self._id, self._token, {"type": 4, "data": data.convert_to_dict()}
         )
 
 
 class SlashCommandContext(ApplicationCommandContext):
+    """Interaction context for a slash command."""
+
     def __init__(self, client: Client, data: type_dicts.InteractionEventData) -> None:
+        """
+        Create a slash command interaction context.
+
+        Args:
+            client (Client): Vivcord client
+            data (type_dicts.InteractionEventData): Interaction event data
+
+        Raises:
+            ValueError: unknown argument gotten
+        """
         super().__init__(client, data)
 
         self._resolved = helpers.fail_if_none(
@@ -160,15 +212,22 @@ class SlashCommandContext(ApplicationCommandContext):
             self._arguments[value["name"]] = user_given_value
 
     async def handle_interaction(self) -> None:
+        """
+        Execute slash command callback.
+
+        Raises:
+            KeyError: Provided name not found in client.
+            TypeError: Command found, but was not a slash command
+        """
         command = self._client.get_command(self._name)
         if command is None:
             raise KeyError(f"application command {self._name!r} not found!")
         if not isinstance(command, commands.SlashCommand):
             raise TypeError("expected slash command")
 
-        arguments: list[OPTION_VALS | None] = []
-        for option in command.options:
-            arguments.append(self._arguments.get(option.name))
+        arguments: list[OPTION_VALS | None] = [
+            self._arguments.get(option.name) for option in command.options
+        ]
 
         await command.func(self, *arguments)
 
@@ -177,6 +236,21 @@ class SlashCommandContext(ApplicationCommandContext):
 def parse_interaction(
     client: Client, data: type_dicts.InteractionEventData
 ) -> _InteractionContext:
+    """
+    Parse interaction event into a context.
+
+    Args:
+        client (Client): Vivcord client
+        data (type_dicts.InteractionEventData): Event data
+
+    Raises:
+        KeyError: Data key not found in event data
+        ValueError: unknown application command type
+        ValueError: unknown interaction type
+
+    Returns:
+        _InteractionContext: The created interaction context
+    """
     match data["type"]:
         case 2:
             if "data" not in data:

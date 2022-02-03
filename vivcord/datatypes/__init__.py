@@ -1,3 +1,7 @@
+"""Most datetypes created by the library."""
+
+from __future__ import annotations
+
 __all__ = (
     "Embed",
     "embed",
