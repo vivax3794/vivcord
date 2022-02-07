@@ -8,12 +8,12 @@ from typing import TYPE_CHECKING
 
 from loguru import logger
 
+from vivcord import _typed_dicts as type_dicts
 from vivcord import commands, datatypes, events, helpers
 
 if TYPE_CHECKING:
     from typing import TypeAlias
 
-    from vivcord import _typed_dicts as type_dicts
     from vivcord.client import Client
 
 
@@ -136,9 +136,7 @@ class SlashCommandContext(ApplicationCommandContext):
         """
         super().__init__(client, data)
 
-        self._resolved = helpers.fail_if_none(
-            self._int_data.get("resolved"), KeyError("Expected resolved key")
-        )
+        self._resolved = self._int_data.get("resolved")
         self._arguments: dict[str, OPTION_VALS] = {}
 
         for value in self._int_data.get("options", []):
@@ -154,6 +152,8 @@ class SlashCommandContext(ApplicationCommandContext):
                 user_given_value = option_value
             else:
                 option_value = typing.cast(int, option_value)
+                # when we got this type of value we know we have values in the resolved dict!
+                self._resolved = typing.cast(type_dicts.ResolvedData, self._resolved)
 
                 match value["type"]:
                     case 6:
@@ -251,17 +251,21 @@ def parse_interaction(
     Returns:
         _InteractionContext: The created interaction context
     """
-    match data["type"]:
+    interaction_type = data["type"]
+    match interaction_type:
         case 2:
             if "data" not in data:
                 raise KeyError("missing data key in interaction payload.")
 
-            type_ = data.get("type", -1)
+            interaction_data = data["data"]
+            command_type = interaction_data["type"]
 
-            match type_:
+            match command_type:
                 case 1:
                     return SlashCommandContext(client, data)
                 case _:
-                    raise ValueError("unknown application command type.")
+                    raise ValueError(
+                        f"unknown application command type {command_type!r}"
+                    )
         case _:
-            raise ValueError("unknown interaction type.")
+            raise ValueError(f"unknown interaction type {interaction_type!r}")

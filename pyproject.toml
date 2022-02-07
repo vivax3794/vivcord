@@ -43,6 +43,13 @@ black = "*"
 isort = "*"
 taskipy = "*"
 pyright = "*"
+pytest = "*"
+pre-commit = "*"
+pytest-typechecker = "*"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
 
 [tool.isort]
 multi_line_output = 3
@@ -60,10 +67,9 @@ reportUnusedCallResult = "warning"
 reportImportCycles = "none"
 
 [tool.taskipy.tasks]
-lint = { cmd = "flake8 .; pyright", help = "Lints project" }
-pyright = { cmd = "pyright", help = "Checks the types in the project" }
-format = { cmd = "isort .; black . --target-version py310", help = "Runs the black python formatter" }
+lint = { cmd = "flake8 vivcord; pyright vivcord", help = "Lints project" }
+format = { cmd = "isort vivcord; black vivcord --target-version py310", help = "Formats project" }
+test = { cmd = "pytest tests", help = "Test project" }
 
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+[tool.pytest.ini_options]
+xfail_strict = true

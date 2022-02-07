@@ -4,4 +4,6 @@ max-line-length=120
 format = ${cyan}%(path)s${reset}:${yellow_bold}%(row)d${reset}:${green_bold}%(col)d${reset}: ${red_bold}%(code)s${reset} %(text)s
 show-source=True
 enable-extensions = TC, TC1
-extend-ignore = SIM119 D105 E501 CFQ002 VNE001
+
+# might want to run E800 and T101 back on in the future!
+extend-ignore = SIM119 D105 E501 CFQ002 VNE001 E800 T101

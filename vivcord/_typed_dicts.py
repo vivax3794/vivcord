@@ -198,7 +198,7 @@ class SendMessageData(TypedDict, total=False):
     """Data that can be sent to discord when creating a message."""
 
     content: str
-    embed: EmbedData
+    embeds: list[EmbedData]
 
 
 class ChannelMentionData(TypedDict):
@@ -753,3 +753,16 @@ class SelectOptionValue:
     """Select option."""
 
     # TODO: idk anymore
+
+
+class AutocompleteResponse(TypedDict):
+    """Response data for a autocomplete event."""
+
+    choices: list[CommandChoice]
+
+
+class InteracionResponsData(TypedDict):
+    """Response data for a interaction."""
+
+    type: int  # noqa: A003
+    data: NotRequired[AutocompleteResponse | SendMessageData]

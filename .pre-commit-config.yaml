@@ -1,0 +1,21 @@
+repos:
+  - repo: local
+    hooks:
+      - id: format
+        name: format
+        entry: poetry run task format
+        language: system
+        types: ["python"]
+        require_serial: true
+      - id: lint
+        name: lint
+        entry: poetry run task lint
+        language: system
+        types: ["python"]
+        require_serial: true
+      # - id: test
+      #   name: test
+      #   entry: poetry run task test
+      #   language: system
+      #   types: ["python"]
+      #   require_serial: true

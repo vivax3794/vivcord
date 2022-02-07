@@ -10,9 +10,10 @@ __all__ = [
     "traits",
     "SlashCommandContext",
     "SendMessageData",
+    "context",
 ]
 
-from vivcord import commands, datatypes, errors, events, traits
+from vivcord import commands, context, datatypes, errors, events, traits
 from vivcord.client import Client
 from vivcord.context import SlashCommandContext
 from vivcord.datatypes import Intents, SendMessageData

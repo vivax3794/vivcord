@@ -126,7 +126,7 @@ class Api:
             await self._handle_response(resp)
 
     async def respond_to_interaction(
-        self, int_id: int, int_token: str, data: dict[str, object]
+        self, int_id: int, int_token: str, data: type_dicts.InteracionResponsData
     ) -> None:
         """
         Respond to interaction gotten from the gateway.
@@ -136,7 +136,7 @@ class Api:
             int_token (str): The interaction token
             data (dict[str, object]): Data to respond with
         """
-        logger.debug(f"responding to interaction {int_id}")
+        logger.debug(f"responding to interaction {int_id} with data {data!r}")
 
         async with self.session.post(
             f"{BASE_URL}/interactions/{int_id}/{int_token}/callback", json=data

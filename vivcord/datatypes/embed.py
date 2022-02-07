@@ -16,6 +16,7 @@ class Embed:
         self,
         title: str | None = None,
         description: str | None = None,
+        *,
         url: str | None = None,
         timestamp: datetime | None = None,
         color: int | None = None,
@@ -69,13 +70,16 @@ class Embed:
         return cls(
             data.get("title"),
             data.get("description"),
-            data.get("url"),
-            datetime.fromtimestamp(int(data["timestamp"]))
+            url=data.get("url"),
+            timestamp=datetime.fromtimestamp(int(data["timestamp"]))
             if "timestamp" in data
             else None,
-            data.get("color"),
-            EmbedFooter.from_json(data["footer"]) if "footer" in data else None,
-            EmbedImage.from_json(data["image"]) if "image" in data else None,
+            color=data.get("color"),
+            footer=EmbedFooter.from_json(data["footer"]) if "footer" in data else None,
+            image=EmbedImage.from_json(data["image"]) if "image" in data else None,
+            thumbnail=EmbedThumbnail.from_json(data["thumbnail"])
+            if "thumbnail" in data
+            else None,
         )
 
     def to_json(self) -> type_dicts.EmbedData:
